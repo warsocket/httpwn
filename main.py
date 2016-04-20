@@ -38,19 +38,19 @@ from settings import settings
 
 def log_request(lines):
     try:
-    conn = sqlite3.connect(settings["logfilepath"])
-    c = conn.cursor()
-    c.execute("""
-    create table if not exists 'visitors' 
-    (
-        timestamp float,
-        osi_source text,
-        request text    
-    );
-    """)
-    c.execute( "insert into visitors values(?,?,?)", (time(), ":".join([get_ip(), get_port()]), "\n".join(lines) ) )
-    conn.commit()
-    conn.close()
+        conn = sqlite3.connect(settings["logfilepath"])
+        c = conn.cursor()
+        c.execute("""
+        create table if not exists 'visitors' 
+        (
+            timestamp float,
+            osi_source text,
+            request text    
+        );
+        """)
+        c.execute( "insert into visitors values(?,?,?)", (time(), ":".join([get_ip(), get_port()]), "\n".join(lines) ) )
+        conn.commit()
+        conn.close()
     except: #if we cannot log we quit
         sys.stderr.write("%s\n" % "Failed to log visit, ABORTING...") 
         exit()    
