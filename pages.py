@@ -24,6 +24,7 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/$"), ALL, mainsite))
 
 from site_constructs import *
+from settings import settings
 
 
 def my_ip(method, url, version, headers, lines):
@@ -42,13 +43,13 @@ def feedback_url(method, url, version, headers, lines):
 def log_request(method, url, version, headers, lines):
     lines = ["---------- %s:%s @ %f ----------" % (get_ip(), get_port(), time())] + lines + ["-----------------------------------------------------"]
     raw_text = "\n".join(lines).strip()
-    with open(requestlogpath(), "a") as f:
+    with open(settings["requestlogpath"], "a") as f:
         f.write("%s\n" % raw_text)
     print "HTTP/1.1 200 OK"
     print "Connection: close"
 
 def requestlog(method, url, version, headers, lines):
-    with open("request_log.txt", "r") as f:
+    with open(settings["requestlogpath"], "r+") as f:
         data = f.read()
     
     print "Connection: close"
@@ -167,7 +168,7 @@ The green part are tools you can use. <input type="button" value="Hide" onclick=
 </div>
 
 
-<div style="text-align:center"><font style="font-size:500%">""" + servername() + """</font></div>
+<div style="text-align:center"><font style="font-size:500%">""" + settings["servername"] + """</font></div>
 <br>
 
 <div id="htmldisplaytool" style="display:none; padding:10px;">
@@ -186,7 +187,7 @@ Content-Type: text/html
 <html>
     <head>
         <script>
-            alert("Hello, welcome to """ + servername() + """");
+            alert("Hello, welcome to """ + settings["servername"] + """");
         </script>
     </head>
     <body />
@@ -195,7 +196,7 @@ Content-Type: text/html
     <script>
         function apply()
         {
-            setTip( '""" + protocol() + """' + '://' + '""" + servername() + """' + '/htmldisplay/' + encodeURIComponent( document.getElementById("headers").value) + "%0A" + encodeURIComponent(document.getElementById("content").value) );
+            setTip( '""" + settings["protocol"] + """' + '://' + '""" + settings["servername"] + """' + '/htmldisplay/' + encodeURIComponent( document.getElementById("headers").value) + "%0A" + encodeURIComponent(document.getElementById("content").value) );
         }
     </script>
     <input type="button" value="Generate" onclick="apply();" />
@@ -254,8 +255,8 @@ Content-Type: text/html
                 <div class="noborder" style="text-align:left;">
                     <br>
                     <br>
-                    <a href="#" onclick="hideAll();show('htmldisplaytool');">Generate code to XSS<br>
-                    <a href="#" onclick="alert('TODO');">Generate Html display url<br>
+                    <a href="#" onclick="hideAll();alert('TODO');">Generate code to XSS<br>
+                    <a href="#" onclick="hideAll();show('htmldisplaytool');">Generate Html display url<br>
                 </div>                
             </div>
         </td>

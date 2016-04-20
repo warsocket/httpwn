@@ -32,37 +32,45 @@ import pwd
 import sqlite3
 import time
 import selector
-from site_constructs import logfilepath
+from site_constructs import *
+from settings import settings
+
 
 def log_request(lines):
-    try:
-        conn = sqlite3.connect(logfilepath())
-        c = conn.cursor()
-        c.execute("""
-        create table if not exists 'visitors' 
-        (
-            timestamp float,
-            osi_source text,
-            request text    
-        );
-        """)
-        c.execute( "insert into visitors values(?,?,?)", (time.time(), ":".join([os.environ["SOCAT_PEERADDR"], os.environ["SOCAT_PEERPORT"]]), "\n".join(lines) ) )
-        conn.commit()
-        conn.close()
-    except: #if we cannot log we quit
-        sys.stderr.write("%s\n" % "Failed to log visit, ABORTING...") 
-        exit()    
+#    try:
+    conn = sqlite3.connect(settings["logfilepath"])
+    c = conn.cursor()
+    c.execute("""
+    create table if not exists 'visitors' 
+    (
+        timestamp float,
+        osi_source text,
+        request text    
+    );
+    """)
+    c.execute( "insert into visitors values(?,?,?)", (time(), ":".join([get_ip(), get_port()]), "\n".join(lines) ) )
+    conn.commit()
+    conn.close()
+#    except: #if we cannot log we quit
+#        sys.stderr.write("%s\n" % "Failed to log visit, ABORTING...") 
+#        exit()    
+
+
+#jail me
+ids = pwd.getpwnam("www-data") #need this before chroot
+os.chroot(settings["jaildir"])
 
 #drop privileges
 try:
-    ids = pwd.getpwnam("www-data")
     os.setgid(ids.pw_gid)
     os.setuid(ids.pw_uid)
-    #sys.stderr.write("%s\n" % str(os.getresuid())) 
-    #sys.stderr.write("%s\n" % str(os.getresgid())) 
 except:
     sys.stderr.write("%s\n" % "Failed to drop priviliges, ABORTING...") 
     exit() #no lesser priviliges no page
+
+#touch files
+with open(settings["requestlogpath"], "a") as f:
+    pass
 
 
 #http parsing

@@ -18,20 +18,6 @@ from urllib import quote, unquote
 from time import time
 import os
 
-#beware the www-data use rmust be able to write these
-def logfilepath():
-    return "/var/www/data/connection_log.db"
-
-def requestlogpath():
-    return "/var/www/data/requestlog.txt"
-
-
-def protocol():
-    return "http"
-
-def servername():
-    return "httpwn.org"
-
 def get_ip():
     return os.environ["SOCAT_PEERADDR"]
 
