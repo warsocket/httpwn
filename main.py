@@ -57,7 +57,7 @@ def log_request(lines):
 
 
 #jail me
-ids = pwd.getpwnam("www-data") #need this before chroot
+ids = pwd.getpwnam(settings["unpriviligeduser"]) #need this before chroot
 os.chroot(settings["jaildir"])
 
 #drop privileges
