@@ -242,7 +242,7 @@ Content-Type: text/html
                     <br>
                     <br>
                     <a href="/logrequest?q=SESSIONID%3Dsecret" onmouseout="clearDiv()" onmouseover="setTip('Nice logging facility that logs all requests being made')">Log requests</a><br>
-                    <a href="/htmldisplay/Connection%3A%20close%0D%0AContent-Type%3A%20text%2Fplain%0D%0A%0D%0Aplain%20text%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
+                    <a href="/htmldisplay/Connection%3A%20close%0AContent-Type%3A%20text%2Fplain%0A%0Aplain%20text%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
                 </div>
             </div>
         </td>
