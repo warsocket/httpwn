@@ -16,4 +16,4 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-socat TCP-LISTEN:80,reuseaddr,fork EXEC:./main.py >/var/log/httpwn.org.log
+socat TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py >/var/log/httpwn.org.log
