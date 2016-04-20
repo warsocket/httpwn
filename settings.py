@@ -2,7 +2,7 @@
 try:
     settings = {
     "unpriviligeduser": "www-data",
-    "jaildir": "/home/bram/projects/httpwn.edit/jail",
+    "jaildir": "/var/spool/httpwn.org",
     "logfilepath": "/connection_log.db",
     "requestlogpath": "/requestlog.txt",
     "protocol": "http",

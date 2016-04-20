@@ -37,7 +37,7 @@ from settings import settings
 
 
 def log_request(lines):
-#    try:
+    try:
     conn = sqlite3.connect(settings["logfilepath"])
     c = conn.cursor()
     c.execute("""
@@ -51,9 +51,9 @@ def log_request(lines):
     c.execute( "insert into visitors values(?,?,?)", (time(), ":".join([get_ip(), get_port()]), "\n".join(lines) ) )
     conn.commit()
     conn.close()
-#    except: #if we cannot log we quit
-#        sys.stderr.write("%s\n" % "Failed to log visit, ABORTING...") 
-#        exit()    
+    except: #if we cannot log we quit
+        sys.stderr.write("%s\n" % "Failed to log visit, ABORTING...") 
+        exit()    
 
 
 #jail me
