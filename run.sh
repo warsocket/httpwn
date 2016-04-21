@@ -15,6 +15,7 @@
 #
 #You should have received a copy of the GNU Affero General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
+cd $(dirname $0)
 
 `./settings.py` # load settings
 
@@ -24,7 +25,7 @@ then
     then
         echo http server already running
     else
-        $socatpath TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py 2> /var/log/httpwn.org.log &
+        $socatpath TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py 2> $httplog &
         echo -n $! > $httppid
     fi
 
@@ -32,7 +33,7 @@ then
     then
         echo https server already running
     else
-        $socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2> /var/log/ssl_httpwn.org.log &
+        $socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2> $httpslog &
         echo -n $! > $httpspid
     fi
 

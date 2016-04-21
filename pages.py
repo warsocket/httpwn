@@ -16,6 +16,7 @@
 
 def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/style.css$"), ALL, css))
+    sites.append((GET, compile("^/robots.txt$"), ALL, robots))
     sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
     sites.append((GET, compile("^/myrequest(/.*)?$"), ALL, feedback_url))
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
@@ -62,6 +63,16 @@ def htmldisplay(method, url, version, headers, lines):
     data = url[len("/htmldisplay/"):]
     un_data = unquote(data)
     print un_data
+
+
+def robots(method, url, version, headers, lines):
+    print "Connection: close"
+    print "Content-Type: text/plain"
+    print ""
+    print "User-agent: *"
+    print "Disallow: /logrequest"
+    print "Disallow: /htmldisplay/"
+    print ""
 
 #style sheet
 def css(method, url, version, headers, lines):

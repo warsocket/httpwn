@@ -46,11 +46,13 @@ def log_request(lines):
         create table if not exists 'visitors' 
         (
             timestamp float,
-            osi_source text,
+            ip text,
+            port integer,
+            secure integer,
             request text    
         );
         """)
-        c.execute( "insert into visitors values(?,?,?)", (time(), ":".join([get_ip(), get_port()]), "\n".join(lines) ) )
+        c.execute( "insert into visitors values(?,?,?,?,?)", ( time(), get_ip(), int(get_port()), int(is_secure()), "\n".join(lines) ) )
         conn.commit()
         conn.close()
     except: #if we cannot log we quit
