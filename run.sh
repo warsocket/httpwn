@@ -16,4 +16,61 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-socat TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py >/var/log/httpwn.org.log
+`./settings.py` # load settings
+
+if [ "$1" ==  "start" ]
+then
+    if [ -f $httppid ]
+    then
+        echo http server already running
+    else
+        $socatpath TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py 2> /var/log/httpwn.org.log &
+        echo -n $! > $httppid
+    fi
+
+    if [ -f $httpspid ]
+    then
+        echo https server already running
+    else
+        $socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2> /var/log/ssl_httpwn.org.log &
+        echo -n $! > $httpspid
+    fi
+
+elif [ "$1" ==  "stop" ]
+then
+    if [ -f $httppid ]
+    then
+        echo killing pid `cat $httppid`
+        kill `cat $httppid`
+        rm $httppid
+    fi
+
+    if [ -f $httpspid ]
+    then
+        echo killing pid `cat $httpspid`
+        kill `cat $httpspid`
+        rm $httpspid
+    fi
+    
+elif [ "$1" ==  "status" ]
+then
+    if [ -f $httppid ]
+    then
+        echo http server running under pid: `cat $httppid`
+    else
+        echo http server not runnig
+    fi
+
+    if [ -f $httpspid ]
+    then
+        echo https server running under pid: `cat $httpspid`
+    else
+        echo https server not runnig
+    fi
+
+else
+    echo "use $0 (start|stop|status)"
+    #$socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py #test line
+fi
+
+

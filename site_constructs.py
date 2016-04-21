@@ -18,6 +18,13 @@ from urllib import quote, unquote
 from time import time
 import os
 
+
+def is_secure():
+   return int(os.environ["SOCAT_SOCKPORT"]) == 443
+
+def proto_name():
+    return ["http", "https"][is_secure()]
+    
 def get_ip():
     return os.environ["SOCAT_PEERADDR"]
 

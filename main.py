@@ -18,13 +18,15 @@
 
 
 # TODO 
+# empty mlines and comments in setting file
 # robots.txt
-# Move hide button
-# bump all to httpwn.org
-# Https
 # Git link
 # Disclosure link
-#
+# HTST custom header (define your own time)
+# Dont attack me cookie (disables attacks from red menu for that user)
+# Exploitation urls generate copyable url
+# https lock image
+# Setting for bumping
 
 import sys
 import os
@@ -59,6 +61,7 @@ def log_request(lines):
 #jail me
 ids = pwd.getpwnam(settings["unpriviligeduser"]) #need this before chroot
 os.chroot(settings["jaildir"])
+os.chdir("/")
 
 #drop privileges
 try:
@@ -80,7 +83,6 @@ try:
 except ValueError: #No HTTP no DEAL
     exit()
 
-
 #Url handling
 lines = [line]
 headers = {}
@@ -96,6 +98,16 @@ while line:
     lines.append(line)
 
 log_request(lines) #always log before giving an answer
+
+
+#bumping to sepcified servername
+if settings["bumptoservername"] == "1":
+    if "Host" in headers:
+        if settings['servername'] != headers["Host"]:
+            print "HTTP/1.1 302 FOUND"
+            print "Location: %s://%s%s" % (proto_name(), settings["servername"], url)
+            print ""
+            exit()
 
 #now delegate
 selector._delegate(method, url, version, headers, lines)

