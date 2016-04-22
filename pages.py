@@ -20,6 +20,7 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/robots.txt$"), ALL, robots))
     sites.append((ALL, compile("^/myip$"), ALL, my_ip))
     sites.append((GET, compile("^/statement$"), ALL, statement))
+    sites.append((ALL, compile("^/tools(/.*)?$"), ALL, css))
     sites.append((GET, compile("^/myrequest(/.*)?$"), ALL, feedback_url))
     sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
@@ -28,6 +29,11 @@ def _sites(sites, ALL, GET, POST, compile):
 from site_constructs import *
 from settings import settings
 
+
+def tool(method, url, version, headers, lines):
+    print "Connection: close"
+    print "Content-Type: text/html " 
+    print ""
 
 def my_ip(method, url, version, headers, lines):
     print "Connection: close"
@@ -51,6 +57,7 @@ def log_request(method, url, version, headers, lines):
         f.write("%s\n" % raw_text)
     print "HTTP/1.1 200 OK"
     print "Connection: close"
+    print ""
 
 def requestlog(method, url, version, headers, lines):
     with open(settings["requestlogpath"], "r+") as f:
@@ -145,7 +152,7 @@ def statement(method, url, version, headers, lines):
     print """
     <div style="padding:10px">
         <p>This website is meant as a fun exercise and toolbox for white-hat hackers to solve challenges on other sites or maybe even find a hole in this one.</p>
-        <p>As long as you restrict yourself ONLY to the webserver (software running on port 80 &amp 443) and website logic you have my permission to try to find holes in the security IF you resonibly disclose them to me.
+        <p>As long as you restrict yourself ONLY to the webserver (software running on port 80 &amp 443) and website logic you have my permission to try to find holes in the security IF you responsibly disclose them to me.
         This server runs on a VM which I rent so mind your scope. I'm the technical contact of this domain so you can find my e-mail there. hint: 'whois httpwn.org | grep "Admin Email:"'</p>
         <p>Finally, the software runnig this website is on github: <a href="https://github.com/warsocket/httpwn">https://github.com/warsocket/httpwn</a> So feel free to review the code and / or collaborate.</p>
     </div>
