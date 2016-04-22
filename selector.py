@@ -45,9 +45,8 @@ def _delegate(method, url, version, headers, lines):
 
 #now the apges may be loaded
 ALL = re.compile("")
-GET = re.compile("^GET$")
+GET = re.compile("(^(GET)|(HEAD)$)")
 POST = re.compile("^POST$")
 
 import pages
 pages._sites(sites,ALL,GET,POST,re.compile)
-

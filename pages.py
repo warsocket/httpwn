@@ -33,12 +33,14 @@ def my_ip(method, url, version, headers, lines):
     print "Connection: close"
     print "Content-Type: text/plain" 
     print ""
+    if method == "HEAD": return
     print get_ip() 
 
 def feedback_url(method, url, version, headers, lines):
     print "Connection: close"
     print "Content-Type: text/plain" 
     print ""
+    if method == "HEAD": return
     print "%s:%s\n" %(get_ip(),get_port())
     print "\n".join(lines)
 
@@ -57,9 +59,10 @@ def requestlog(method, url, version, headers, lines):
     print "Connection: close"
     print "Content-Type: text/plain"
     print ""
+    if method == "HEAD": return
     print data
 
-
+#special case and if you head this one youre out of luck
 def htmldisplay(method, url, version, headers, lines):
     data = url[len("/htmldisplay/"):]
     un_data = unquote(data)
@@ -70,6 +73,7 @@ def robots(method, url, version, headers, lines):
     print "Connection: close"
     print "Content-Type: text/plain"
     print ""
+    if method == "HEAD": return
     print "User-agent: *"
     print "Disallow: /logrequest"
     print "Disallow: /htmldisplay/"
@@ -79,6 +83,8 @@ def robots(method, url, version, headers, lines):
 def css(method, url, version, headers, lines):
     print "Connection: close"
     print "Content-Type: text/css"
+    print ""
+    if method == "HEAD": return
     print """
 /* I have no style */
 *
@@ -134,6 +140,7 @@ a
 def statement(method, url, version, headers, lines):
     html_headers()
     print ""
+    if method == "HEAD": return
     prologue()
     print """
     <div style="padding:10px">
@@ -196,6 +203,8 @@ def mainsite(method, url, version, headers, lines):
     </svg>"""]
 
     html_headers()
+    print ""
+    if method == "HEAD": return
     print """
 <html>
 <head>
