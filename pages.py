@@ -15,14 +15,15 @@
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 def _sites(sites, ALL, GET, POST, compile):
+    sites.append((GET, compile("^/$"), ALL, mainsite))
     sites.append((GET, compile("^/style.css$"), ALL, css))
     sites.append((GET, compile("^/robots.txt$"), ALL, robots))
-    sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
+    sites.append((ALL, compile("^/myip$"), ALL, my_ip))
+    sites.append((GET, compile("^/statement$"), ALL, statement))
     sites.append((GET, compile("^/myrequest(/.*)?$"), ALL, feedback_url))
+    sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
     sites.append((GET, compile("^/readrequest$"), ALL, requestlog))
-    sites.append((ALL, compile("^/myip$"), ALL, my_ip))
-    sites.append((GET, compile("^/$"), ALL, mainsite))
 
 from site_constructs import *
 from settings import settings
@@ -130,7 +131,70 @@ a
 }
 """
 
+def statement(method, url, version, headers, lines):
+    html_headers()
+    print ""
+    prologue()
+    print """
+    <div style="padding:10px">
+        <p>This website is meant as a fun exercise and toolbox for white-hat hackers to solve challenges on other sites or maybe even find a hole in this one.</p>
+        <p>As long as you restrict yourself ONLY to the webserver (software running on port 80 &amp 443) and website logic you have my permission to try to find holes in the security IF you resonibly disclose them to me.
+        This server runs on a VM which I rent so mind your scope. I'm the technical contact of this domain so you can find my e-mail there. hint: 'whois httpwn.org | grep "Admin Email:"'</p>
+        <p>Finally, the software runnig this website is on github: <a href="https://github.com/warsocket/httpwn">https://github.com/warsocket/httpwn</a> So feel free to review the code and / or collaborate.</p>
+    </div>
+    """
+    epilogue()
+
+
 def mainsite(method, url, version, headers, lines):
+
+    reverse_proto = ["https","http"][is_secure()]
+
+    lock_img = ["""
+    <svg width="39" height="63">
+        <g
+            transform="scale(1.1)"
+            scale=""
+        >
+            <rect
+                style="fill:#ff0000"
+                id="rect3342"
+                width="35"
+                height="30"
+                x="0.15664554"
+                y="26.904453" 
+            />
+            <path
+                style="fill:#ff0000"
+                d="M 17.642411,0.14466496 A 15,15 0 0 0 2.6424112,15.144635 l 0,5 5,0 0,-5 a 10,10 0 0 1 9.9999998,-10 10,10 0 0 1 10,10 l 0,5 5.000001,0 0,-5 A 15,15 0 0 0 17.642411,0.14466496 Z"
+            />
+        </g>
+    </svg>
+""",
+"""    <svg width="39" height="63">
+        <g
+            transform="scale(1.1)"
+            scale=""
+        >
+            <rect
+                style="fill:#00ff00"
+                id="rect3342"
+                width="35"
+                height="30"
+                x="0.15664554"
+                y="26.904453" 
+            />
+            <g
+                transform="translate(0,6)"
+            >
+                <path
+                    style="fill:#00ff00"
+                    d="M 17.642411,0.14466496 A 15,15 0 0 0 2.6424112,15.144635 l 0,5 5,0 0,-5 a 10,10 0 0 1 9.9999998,-10 10,10 0 0 1 10,10 l 0,5 5.000001,0 0,-5 A 15,15 0 0 0 17.642411,0.14466496 Z"
+                />
+            </g>
+        </g>
+    </svg>"""]
+
     html_headers()
     print """
 <html>
@@ -198,7 +262,11 @@ The green part are tools you can use. <input type="button" value="Hide" onclick=
 </div>
 
 
-<div style="text-align:center"><font style="font-size:500%">""" + settings["servername"] + """</font></div>
+<div style="text-align:center">
+<a href=\"""" +  reverse_proto + """://httpwn.org" style="text-decoration: none">""" + lock_img[is_secure()] + """</a>
+    <font style="font-size:500%">""" + settings["servername"] + """</font>
+</div>
+
 <br>
 
 <div id="htmldisplaytool" style="display:none; padding:10px;">
@@ -291,13 +359,16 @@ Content-Type: text/html
                         }
                     </script>
                     <a href="#" onclick="hideAll();xssTip();">Generate code to XSS<br>
-                    <a href="#" onclick="hideAll();show('htmldisplaytool');">Generate Html display url<br>
+                    <a href="#" onclick="hideAll();setTip('');show('htmldisplaytool');">Generate Html display url<br>
                 </div>                
             </div>
         </td>
     </tr>
 </table>
 <br>
-
+<br>
+<div class="noborder" style="text-align:center;">
+    <a href="/statement" target="_blank" style="color:#050;">About this site, resposible disclosure and github.</a>
+</div>
 """
     epilogue()

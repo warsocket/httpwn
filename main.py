@@ -18,15 +18,12 @@
 
 
 # TODO 
-# empty mlines and comments in setting file
-# robots.txt
 # Git link
 # Disclosure link
 # HTST custom header (define your own time)
 # Dont attack me cookie (disables attacks from red menu for that user)
 # Exploitation urls generate copyable url
-# https lock image
-# Setting for bumping
+
 
 import sys
 import os
