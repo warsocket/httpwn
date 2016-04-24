@@ -20,7 +20,7 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/robots.txt$"), ALL, robots))
     sites.append((ALL, compile("^/myip$"), ALL, my_ip))
     sites.append((GET, compile("^/statement$"), ALL, statement))
-    sites.append((ALL, compile("^/tools(/.*)?$"), ALL, css))
+    sites.append((ALL, compile("^/tools(/.*)?$"), ALL, tool))
     sites.append((GET, compile("^/myrequest(/.*)?$"), ALL, feedback_url))
     sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
@@ -31,9 +31,19 @@ from settings import settings
 
 
 def tool(method, url, version, headers, lines):
-    print "Connection: close"
-    print "Content-Type: text/html " 
+    html_headers()
     print ""
+    if method == "HEAD": return
+    prologue()
+    print """
+        YES I will fix XSS parsing someday, and stop using text/plain. But not today.
+        <div>
+            this is your request:<br>
+            <iframe src="/myrequest" style="background-color:white;" /><!-- Because good idea to allow change to the background color in a text/plain iframe #mostbrowsers, (black on black reads funny, that why) -->
+        </div>
+
+    """
+    epilogue()
 
 def my_ip(method, url, version, headers, lines):
     print "Connection: close"
@@ -338,10 +348,11 @@ Content-Type: text/html
                 </div>
                 <br>
                 <div class="noborder" style="text-align:right">
-                    <a href="/myip" onmouseout="clearDiv()" onmouseover="setTip('You can use this link (in an automated way) to determine your WAN IP. all http methods are supported (GET/POST/etc).')">My IP</a><br>
-                    <a href="/myrequest" onmouseout="clearDiv()" onmouseover="setTip('Check what kind of request your browser is sending to this site, including headers and http-method.')">My request</a><br>
-                    <a href="/readrequest" onmouseout="clearDiv()" onmouseover="setTip('Read all requsts made by the request logger')">Read logged requests</a><br>
+                    <a href="/myip" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('You can use this link (in an automated way) to determine your WAN IP. all http methods are supported (GET/POST/etc).')">My IP</a><br>
+                    <a href="/myrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Check what kind of request your browser is sending to this site, including headers and http-method.')">My request</a><br>
+                    <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Read all requsts made by the request logger')">Read logged requests</a><br>
                     <br>
+                    <a href="/tools" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand othe rheaders for using this site.')">User tools</a><br>
                 </div>    
             </div>
         </td>
@@ -356,6 +367,7 @@ Content-Type: text/html
                     <br>
                     <a href="/logrequest?q=SESSIONID%3Dsecret" onmouseout="clearDiv()" onmouseover="setTip('Nice logging facility that logs all requests being made')">Log requests</a><br>
                     <a href="/htmldisplay/Connection%3A%20close%0AContent-Type%3A%20text%2Fplain%0A%0Aplain%20text%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
+                    <br>
                 </div>
             </div>
         </td>
@@ -376,6 +388,7 @@ Content-Type: text/html
                     </script>
                     <a href="#" onclick="hideAll();xssTip();">Generate code to XSS<br>
                     <a href="#" onclick="hideAll();setTip('');show('htmldisplaytool');">Generate Html display url<br>
+                    <br>
                 </div>                
             </div>
         </td>
