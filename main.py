@@ -18,11 +18,9 @@
 
 
 # TODO 
-# Git link
-# Disclosure link
-# HTST custom header (define your own time)
+# HTST custom header (define your own time) [DONE but PSOT needs work]
 # Dont attack me cookie (disables attacks from red menu for that user)
-# Exploitation urls generate copyable url
+# Protect agains ppl who jam server by connecting and not completing the http request (just accept x alive connecitons per ip, and maybe limit the request time to 1 sec)
 
 
 import sys
@@ -82,20 +80,26 @@ try:
 except ValueError: #No HTTP no DEAL
     exit()
 
+
 #Url handling
 lines = [line]
 headers = {}
 while line:
-    if line: #dont freak out over white line
-        try:
-            header, content = line.split(":")
-            headers[header] = content.strip()
-        except ValueError: #discard ValueErrors of mal formatted headers
-            pass
+    try:
+        header, content = line.split(":")
+        headers[header] = content.strip()
+    except ValueError: #discard ValueErrors of mal formatted headers
+        pass
     
     line = sys.stdin.readline().strip() #get request
     lines.append(line)
 
+if "Content-Length" in headers:
+    try:
+        lines.append(sys.stdin.read(int(headers["Content-Length"])))
+    except:
+        exit() # funny stuff makes your connection dead eg: value errors    
+    
 log_request(lines) #always log before giving an answer
 
 
