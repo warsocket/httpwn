@@ -25,7 +25,7 @@ then
     then
         echo http server already running
     else
-        $socatpath TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py 2> $httplog &
+        $socatpath TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py 2>> $httplog &
         echo -n $! > $httppid
     fi
 
@@ -33,7 +33,7 @@ then
     then
         echo https server already running
     else
-        $socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2> $httpslog &
+        $socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2>> $httpslog &
         echo -n $! > $httpspid
     fi
 

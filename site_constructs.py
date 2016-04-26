@@ -17,6 +17,7 @@
 from urllib import quote, unquote
 from time import time
 import os
+from settings import settings
 
 
 def is_secure():
@@ -40,10 +41,10 @@ def prologue():
     print """
 <html>
 <head>
-<link href="style.css" rel="stylesheet" type="text/css">
+<link href="%s://%s/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-"""
+""" % (proto_name(), settings['servername'])
 
 def epilogue():
     print """

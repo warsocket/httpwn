@@ -26,19 +26,22 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
     sites.append((GET, compile("^/readrequest$"), ALL, requestlog))
 
+import sys
 from site_constructs import *
-from settings import settings
+#from settings import settings
 
 
 def tool(method, url, version, headers, lines):
     if method == "POST":
+        sys.stderr.write("%s\n" % url)
         print "Connection: close"
         try:
-            print "Strict-Transport-Security: max-age=%d" % int(lines[-1])
+            pass
+            #print "Strict-Transport-Security: max-age=%d" % int(lines[-1])
         except: #You dont gfet the header if you do funky stuff
             pass 
         print ""
-        return        
+        return
 
 
     html_headers()
@@ -47,15 +50,17 @@ def tool(method, url, version, headers, lines):
     prologue()
     print """
         <script>
-            function hstsRequest()
+            function postRequest(url)
             {
                 var request = new XMLHttpRequest();
-                request.open('POST', 'https://httpwn.org/tools', true);
-                request.send( document.getElementById("HSTS-time").value );
+                request.open('POST', 'https://httpwn.org/tools/' + url, true);
+                request.send();
             }            
         </script>
-        <div height:500px;" >
-                Lock in Https session using HSTS for <input type="text" style="width:75px" id="HSTS-time" value="60" /> seconds: <input type="button" onclick="hstsRequest();" value="->" />
+
+        <div>
+            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" onclick="postRequest('HSTS/on');" value="Enable" /> <input class="red" type="button" onclick="postRequest('HSTS/off');" value="Disable" /></div>
+            <div class="noborder">HPKP lock-in: <input type="button" onclick="postRequest('HPKP/on');" value="Enable" /> <input class="red" type="button" onclick="postRequest('HPKP/off');" value="Disable" /></div>
         </div>
 
     """
@@ -243,6 +248,7 @@ def mainsite(method, url, version, headers, lines):
     html_headers()
     print ""
     if method == "HEAD": return
+    #CUstom header
     print """
 <html>
 <head>

@@ -21,7 +21,7 @@
 # HTST custom header (define your own time) [DONE but PSOT needs work]
 # Dont attack me cookie (disables attacks from red menu for that user)
 # Protect agains ppl who jam server by connecting and not completing the http request (just accept x alive connecitons per ip, and maybe limit the request time to 1 sec)
-
+#make sure server can start form all directories
 
 import sys
 import os
@@ -30,7 +30,7 @@ import sqlite3
 import time
 import selector
 from site_constructs import *
-from settings import settings
+#from settings import settings
 
 
 def log_request(lines):
@@ -71,7 +71,6 @@ except:
 #touch files
 with open(settings["requestlogpath"], "a") as f:
     pass
-
 
 #http parsing
 line = sys.stdin.readline().strip() #get request
