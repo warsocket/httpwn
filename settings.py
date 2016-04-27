@@ -25,7 +25,7 @@ ismain = ( __name__ == "__main__" )
 settings = {}
 try:
     for line in open ("settings.conf", "r"):
-        key,value = map( lambda x: x.strip(), line.split("="))
+        key,value = map( lambda x: x.strip(), line.split("=", 1))
         if ismain:
             print "export %s=%s" % (key,value)
         else:

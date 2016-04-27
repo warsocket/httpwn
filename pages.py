@@ -33,13 +33,30 @@ from site_constructs import *
 
 def tool(method, url, version, headers, lines):
     if method == "POST":
-        sys.stderr.write("%s\n" % url)
-        print "Connection: close"
         try:
-            pass
-            #print "Strict-Transport-Security: max-age=%d" % int(lines[-1])
-        except: #You dont gfet the header if you do funky stuff
-            pass 
+            code = int(lines[-1])
+        except:
+            quit() #again if you try to break it, You dont get an answer        
+
+        print "Connection: close"
+        
+        whitelist = ["http://%s" % settings["servername"], "https://%s" % settings["servername"]]
+
+        if "Origin" in headers:
+            if headers['Origin'] in whitelist:
+                print "Access-Control-Allow-Origin: %s" % headers['Origin']
+            else:
+                exit() #And here we are sure someone is being naughty
+
+        if (code == 0):
+            print "Strict-Transport-Security: max-age=0"
+        elif (code == 1):
+            print "Strict-Transport-Security: max-age=%s" % settings["httpssecuritytimeout"]
+        elif (code == 2):
+            print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=0; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"])
+        elif (code == 3):
+            print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=%s; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"], settings["httpssecuritytimeout"])
+
         print ""
         return
 
@@ -50,17 +67,17 @@ def tool(method, url, version, headers, lines):
     prologue()
     print """
         <script>
-            function postRequest(url)
+            function postRequest(code)
             {
                 var request = new XMLHttpRequest();
-                request.open('POST', 'https://httpwn.org/tools/' + url, true);
-                request.send();
+                request.open('POST', 'https://httpwn.org/tools', true);
+                request.send(code);
             }            
         </script>
 
         <div>
-            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" onclick="postRequest('HSTS/on');" value="Enable" /> <input class="red" type="button" onclick="postRequest('HSTS/off');" value="Disable" /></div>
-            <div class="noborder">HPKP lock-in: <input type="button" onclick="postRequest('HPKP/on');" value="Enable" /> <input class="red" type="button" onclick="postRequest('HPKP/off');" value="Disable" /></div>
+            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" onclick="postRequest('1');" value="Enable" /> <input class="red" type="button" onclick="postRequest('0');" value="Disable" /></div>
+            <div class="noborder">HPKP lock-in: <input type="button" onclick="postRequest('3');" value="Enable" /> <input class="red" type="button" onclick="postRequest('2');" value="Disable" /></div>
         </div>
 
     """

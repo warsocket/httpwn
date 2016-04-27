@@ -18,7 +18,7 @@
 
 
 # TODO 
-# HTST custom header (define your own time) [DONE but PSOT needs work]
+# allow other origon on https grom http://httpnw.org/tools
 # Dont attack me cookie (disables attacks from red menu for that user)
 # Protect agains ppl who jam server by connecting and not completing the http request (just accept x alive connecitons per ip, and maybe limit the request time to 1 sec)
 #make sure server can start form all directories
@@ -85,7 +85,7 @@ lines = [line]
 headers = {}
 while line:
     try:
-        header, content = line.split(":")
+        header, content = line.split(":",1)
         headers[header] = content.strip()
     except ValueError: #discard ValueErrors of mal formatted headers
         pass
