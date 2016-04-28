@@ -38,7 +38,7 @@ def tool(method, url, version, headers, lines):
         except:
             quit() #again if you try to break it, You dont get an answer        
 
-        print "Connection: close"
+        plaintext_headers()
         
         whitelist = ["http://%s" % settings["servername"], "https://%s" % settings["servername"]]
 
@@ -58,10 +58,12 @@ def tool(method, url, version, headers, lines):
             print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=%s; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"], settings["httpssecuritytimeout"])
 
         print ""
+        print "1"
         return
 
 
     html_headers()
+    static_cache_headers()
     print ""
     if method == "HEAD": return
     prologue()
@@ -71,28 +73,40 @@ def tool(method, url, version, headers, lines):
             {
                 var request = new XMLHttpRequest();
                 request.open('POST', 'https://httpwn.org/tools', true);
+                request.onreadystatechange = function() {
+                    if (request.readyState == 4) {
+                        if (request.response)
+                        {
+                            color = (code & 1) ? "#090" : "#900";
+                            document.getElementById(code).style.backgroundColor = color;
+    
+                            otherCode = code & 1 ^ 1 + (code & 2);
+                            document.getElementById(otherCode).style.backgroundColor = "#000";
+                        }
+                    }
+                }
                 request.send(code);
             }            
         </script>
 
         <div>
-            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" onclick="postRequest('1');" value="Enable" /> <input class="red" type="button" onclick="postRequest('0');" value="Disable" /></div>
-            <div class="noborder">HPKP lock-in: <input type="button" onclick="postRequest('3');" value="Enable" /> <input class="red" type="button" onclick="postRequest('2');" value="Disable" /></div>
+            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" id="1" onclick="postRequest('1');" value="Enable" /> <input class="red" type="button" id="0" onclick="postRequest('0');" value="Disable" /></div>
+            <div class="noborder">HPKP lock-in: <input type="button" id="3" onclick="postRequest('3');" value="Enable" /> <input class="red" type="button" id="2" onclick="postRequest('2');" value="Disable" /></div>
         </div>
 
     """
     epilogue()
 
 def my_ip(method, url, version, headers, lines):
-    print "Connection: close"
-    print "Content-Type: text/plain" 
+    plaintext_headers()
+    no_cache_headers()
     print ""
     if method == "HEAD": return
     print get_ip() 
 
 def feedback_url(method, url, version, headers, lines):
-    print "Connection: close"
-    print "Content-Type: text/plain" 
+    plaintext_headers()
+    no_cache_headers()
     print ""
     if method == "HEAD": return
     print "%s:%s\n" %(get_ip(),get_port())
@@ -100,7 +114,7 @@ def feedback_url(method, url, version, headers, lines):
 
 def log_request(method, url, version, headers, lines):
     lines = ["---------- %s:%s @ %f ----------" % (get_ip(), get_port(), time())] + lines + ["-----------------------------------------------------"]
-    
+    no_cache_headers()    
     raw_text = "\n".join(lines).strip()
     with open(settings["requestlogpath"], "a") as f:
         f.write("%s\n" % raw_text)
@@ -112,8 +126,8 @@ def requestlog(method, url, version, headers, lines):
     with open(settings["requestlogpath"], "r+") as f:
         data = f.read()
     
-    print "Connection: close"
-    print "Content-Type: text/plain"
+    plaintext_headers()
+    revalidate_cache_headers()
     print ""
     if method == "HEAD": return
     print data
@@ -126,8 +140,8 @@ def htmldisplay(method, url, version, headers, lines):
 
 
 def robots(method, url, version, headers, lines):
-    print "Connection: close"
-    print "Content-Type: text/plain"
+    plaintext_headers()
+    static_cache_headers()
     print ""
     if method == "HEAD": return
     print "User-agent: *"
@@ -139,6 +153,7 @@ def robots(method, url, version, headers, lines):
 def css(method, url, version, headers, lines):
     print "Connection: close"
     print "Content-Type: text/css"
+    static_cache_headers()
     print ""
     if method == "HEAD": return
     print """
@@ -197,6 +212,7 @@ a
 
 def statement(method, url, version, headers, lines):
     html_headers()
+    static_cache_headers()
     print ""
     if method == "HEAD": return
     prologue()
@@ -263,6 +279,7 @@ def mainsite(method, url, version, headers, lines):
     </svg>"""]
 
     html_headers()
+    static_cache_headers()
     print ""
     if method == "HEAD": return
     #CUstom header

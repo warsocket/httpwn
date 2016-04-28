@@ -36,6 +36,18 @@ def html_headers():
     print "Connection: close"
     print "Content-Type: text/html"
 
+def plaintext_headers():
+    print "Connection: close"
+    print "Content-Type: text/plain"
+
+def static_cache_headers():
+    print "cache-control: max-age=86400"
+
+def revalidate_cache_headers():
+    print "cache-control: max-age=0,must-revalidate"
+
+def no_cache_headers():
+    print "cache-control: no-store"
 
 def prologue():
     print """
