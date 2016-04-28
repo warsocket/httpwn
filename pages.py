@@ -18,6 +18,7 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/$"), ALL, mainsite))
     sites.append((GET, compile("^/style.css$"), ALL, css))
     sites.append((GET, compile("^/robots.txt$"), ALL, robots))
+    sites.append((ALL, compile("^/walloffame$"), ALL, walloffame))
     sites.append((ALL, compile("^/myip$"), ALL, my_ip))
     sites.append((GET, compile("^/statement$"), ALL, statement))
     sites.append((ALL, compile("^/tools(/.*)?$"), ALL, tool))
@@ -30,6 +31,27 @@ import sys
 from site_constructs import *
 #from settings import settings
 
+
+def walloffame(method, url, version, headers, lines):
+    html_headers()
+    static_cache_headers()
+    print ""
+    prologue()
+    print """
+        <div>
+            <ul>
+                <li>
+                    Christiaan O.
+                    <ul style="list-style:none;"><li>Noticed that dropping root rights would be a good idea.</li></ul>
+                </li><br>
+                <li>
+                    Frank E.
+                    <ul style="list-style:none;"><li>Noticed that the Html Display could be use to exploit users of this site (eg: by revoking their HSTS aand HPKP headers).</li></ul>
+                </li>
+            </ul>
+        </div>
+    """
+    epilogue()
 
 def tool(method, url, version, headers, lines):
     if method == "POST":
@@ -128,6 +150,7 @@ def requestlog(method, url, version, headers, lines):
     
     plaintext_headers()
     revalidate_cache_headers()
+    
     print ""
     if method == "HEAD": return
     print data
@@ -371,7 +394,7 @@ Content-Type: text/html
 <html>
     <head>
         <script>
-            alert("Hello, welcome to "%s");
+            alert("Hello, welcome to '%s'");
         </script>
     </head>
     <body />
@@ -458,6 +481,7 @@ Content-Type: text/html
 <br>
 <br>
 <div class="noborder" style="text-align:center;">
+    <a href="/walloffame" target="_blank">Wall of fame</a><br><br>
     <a href="/statement" target="_blank" style="color:#050;">About this site, resposible disclosure and github.</a>
 </div>
 """ % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, protocol_name, server_name)

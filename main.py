@@ -18,10 +18,10 @@
 
 
 # TODO 
-# allow other origon on https grom http://httpnw.org/tools
+# Etag for revalidate_cache_headers (EG: sha256 as etag for the requests file) 
 # Dont attack me cookie (disables attacks from red menu for that user)
 # Protect agains ppl who jam server by connecting and not completing the http request (just accept x alive connecitons per ip, and maybe limit the request time to 1 sec)
-#make sure server can start form all directories
+# Make sure server can start form all directories
 
 import sys
 import os
