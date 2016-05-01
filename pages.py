@@ -32,27 +32,6 @@ from site_constructs import *
 #from settings import settings
 
 
-def walloffame(method, url, version, headers, lines):
-    html_headers()
-    static_cache_headers()
-    print ""
-    prologue()
-    print """
-        <div>
-            <ul>
-                <li>
-                    Christiaan O.
-                    <ul style="list-style:none;"><li>Noticed that dropping root rights would be a good idea.</li></ul>
-                </li><br>
-                <li>
-                    Frank E.
-                    <ul style="list-style:none;"><li>Noticed that the Html Display could be use to exploit users of this site (eg: by revoking their HSTS aand HPKP headers).</li></ul>
-                </li>
-            </ul>
-        </div>
-    """
-    epilogue()
-
 def tool(method, url, version, headers, lines):
     if method == "POST":
         try:
@@ -73,11 +52,16 @@ def tool(method, url, version, headers, lines):
         if (code == 0):
             print "Strict-Transport-Security: max-age=0"
         elif (code == 1):
-            print "Strict-Transport-Security: max-age=%s" % settings["httpssecuritytimeout"]
+            print "Strict-Transport-Security: max-age=%s" % settings["httpsecuritytimeout"]
         elif (code == 2):
             print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=0; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"])
         elif (code == 3):
-            print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=%s; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"], settings["httpssecuritytimeout"])
+            print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=%s; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"], settings["httpsecuritytimeout"])
+        elif (code == 4):
+            print "Set-Cookie: protection=0; Max-Age=0"
+        elif (code == 5):
+            print "Set-Cookie: protection=1; Max-Age=%s" % settings["httpsecuritytimeout"]
+            
 
         print ""
         print "1"
@@ -102,7 +86,7 @@ def tool(method, url, version, headers, lines):
                             color = (code & 1) ? "#090" : "#900";
                             document.getElementById(code).style.backgroundColor = color;
     
-                            otherCode = code & 1 ^ 1 + (code & 2);
+                            otherCode = code & 1 ^ 1 + (code & 254); //will work until we make a LOT of buttons
                             document.getElementById(otherCode).style.backgroundColor = "#000";
                         }
                     }
@@ -112,12 +96,15 @@ def tool(method, url, version, headers, lines):
         </script>
 
         <div>
-            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" id="1" onclick="postRequest('1');" value="Enable" /> <input class="red" type="button" id="0" onclick="postRequest('0');" value="Disable" /></div>
-            <div class="noborder">HPKP lock-in: <input type="button" id="3" onclick="postRequest('3');" value="Enable" /> <input class="red" type="button" id="2" onclick="postRequest('2');" value="Disable" /></div>
+            <div class="noborder" style="padding-bottom:10px;">Exploit protection: <input type="button" id="5" onclick="postRequest('5');" value="Enable" /> <input class="red" type="button" id="4" onclick="postRequest('4');" value="Disable" /> TODO: Block the red links on this site for you. (For your current connection only (http OR https))</div>
+            <div class="noborder" style="padding-bottom:10px;">HSTS lock-in: <input type="button" id="1" onclick="postRequest('1');" value="Enable" /> <input class="red" type="button" id="0" onclick="postRequest('0');" value="Disable" /> You can only reacht this site via https.</div>
+            <div class="noborder" style="padding-bottom:30px;">HPKP lock-in: <input type="button" id="3" onclick="postRequest('3');" value="Enable" /> <input class="red" type="button" id="2" onclick="postRequest('2');" value="Disable" /> Pins the certificates used on this site</div> 
+            <div class="noborder">Full protection: <input type="button" onclick="postRequest('1');postRequest('3');postRequest('5');" value="Enable" /> <input class="red" type="button" onclick="postRequest('0');postRequest('2');postRequest('4');" value="Disable" /></div>
         </div>
 
     """
     epilogue()
+
 
 def my_ip(method, url, version, headers, lines):
     plaintext_headers()
@@ -126,6 +113,7 @@ def my_ip(method, url, version, headers, lines):
     if method == "HEAD": return
     print get_ip() 
 
+
 def feedback_url(method, url, version, headers, lines):
     plaintext_headers()
     no_cache_headers()
@@ -133,6 +121,7 @@ def feedback_url(method, url, version, headers, lines):
     if method == "HEAD": return
     print "%s:%s\n" %(get_ip(),get_port())
     print "\n".join(lines)
+
 
 def log_request(method, url, version, headers, lines):
     lines = ["---------- %s:%s @ %f ----------" % (get_ip(), get_port(), time())] + lines + ["-----------------------------------------------------"]
@@ -144,6 +133,7 @@ def log_request(method, url, version, headers, lines):
     print "Connection: close"
     print ""
 
+
 def requestlog(method, url, version, headers, lines):
     with open(settings["requestlogpath"], "r+") as f:
         data = f.read()
@@ -154,6 +144,7 @@ def requestlog(method, url, version, headers, lines):
     print ""
     if method == "HEAD": return
     print data
+
 
 #special case and if you head this one youre out of luck
 def htmldisplay(method, url, version, headers, lines):
@@ -171,6 +162,7 @@ def robots(method, url, version, headers, lines):
     print "Disallow: /logrequest"
     print "Disallow: /htmldisplay/"
     print ""
+
 
 #style sheet
 def css(method, url, version, headers, lines):
@@ -232,6 +224,29 @@ a
     color: #F00;
 }
 """
+
+
+def walloffame(method, url, version, headers, lines):
+    html_headers()
+    static_cache_headers()
+    print ""
+    prologue()
+    print """
+        <div>
+            <ul>
+                <li>
+                    Christiaan O.
+                    <ul style="list-style:none;"><li>Noticed that dropping root rights would be a good idea.</li></ul>
+                </li><br>
+                <li>
+                    Frank E.
+                    <ul style="list-style:none;"><li>Noticed that the Html Display could be use to exploit users of this site (eg: by revoking their HSTS aand HPKP headers).</li></ul>
+                </li>
+            </ul>
+        </div>
+    """
+    epilogue()
+
 
 def statement(method, url, version, headers, lines):
     html_headers()
