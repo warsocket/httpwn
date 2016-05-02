@@ -21,7 +21,7 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((ALL, compile("^/walloffame$"), ALL, walloffame))
     sites.append((ALL, compile("^/myip$"), ALL, my_ip))
     sites.append((GET, compile("^/statement$"), ALL, statement))
-    sites.append((ALL, compile("^/tools(/.*)?$"), ALL, tool))
+    sites.append((ALL, compile("^/settings(/.*)?$"), ALL, tool))
     sites.append((GET, compile("^/myrequest(/.*)?$"), ALL, feedback_url))
     sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
@@ -93,7 +93,7 @@ def tool(method, url, version, headers, lines):
             function postRequest(code)
             {
                 var request = new XMLHttpRequest();
-                url = 'https://httpwn.org/tools';
+                url = 'https://httpwn.org/settings';
                 request.open('POST', url, true);
                 request.onreadystatechange = function() {
                     if (request.readyState == 4) {
@@ -479,7 +479,7 @@ Content-Type: text/html
                     <a href="/myrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Check what kind of request your browser is sending to this site, including headers and http-method.')">My request</a><br>
                     <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Read all requsts made by the request logger')">Read logged requests</a><br>
                     <br>
-                    <a href="https://%s/tools" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand othe rheaders for using this site.')">User tools</a><br>
+                    <a href="https://%s/settings" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand othe rheaders for using this site.')">User settings</a><br>
                 </div>    
             </div>
         </td>
