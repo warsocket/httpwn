@@ -20,6 +20,23 @@ import os
 from settings import settings
 
 
+def parse_cookies(cookie_string):
+    c = {}
+    try:
+        cookies = cookie_string.strip().split(";")
+        cookies = map( lambda x: x.strip(), cookies )
+        filter( lambda x: bool(x), cookies )
+        for cookie in cookies:
+            name, val = cookie.split("=")
+            name = name.strip()
+            val = val.strip()
+            c[name] = val
+    except:
+        return {} #broken cookie string means no cookies
+
+    return c    
+
+
 def is_secure():
    return int(os.environ["SOCAT_SOCKPORT"]) == 443
 

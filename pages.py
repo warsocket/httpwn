@@ -33,7 +33,12 @@ from site_constructs import *
 
 
 def tool(method, url, version, headers, lines):
+    # if plain http we break earyl and redirect
+
     if method == "POST":
+        if not is_secure():
+            exit()
+
         try:
             code = int(lines[-1])
         except:
@@ -68,17 +73,28 @@ def tool(method, url, version, headers, lines):
         return
 
 
-    html_headers()
+    if is_secure():
+        html_headers()
+    else:
+        plaintext_headers() #if not secure
+
     static_cache_headers()
     print ""
+
     if method == "HEAD": return
+
+    if not is_secure():
+        print "This page is only available in https" #if not secure
+        return #if not secure
+
     prologue()
     print """
         <script>
             function postRequest(code)
             {
                 var request = new XMLHttpRequest();
-                request.open('POST', 'https://httpwn.org/tools', true);
+                url = 'https://httpwn.org/tools';
+                request.open('POST', url, true);
                 request.onreadystatechange = function() {
                     if (request.readyState == 4) {
                         if (request.response)
@@ -124,6 +140,12 @@ def feedback_url(method, url, version, headers, lines):
 
 
 def log_request(method, url, version, headers, lines):
+    try:
+        parse_cookies(headers["Cookie"])["protection"] #if this does not break youre safe (protection cookie exists)
+        return
+    except:
+        pass
+
     lines = ["---------- %s:%s @ %f ----------" % (get_ip(), get_port(), time())] + lines + ["-----------------------------------------------------"]
     no_cache_headers()    
     raw_text = "\n".join(lines).strip()
@@ -148,6 +170,12 @@ def requestlog(method, url, version, headers, lines):
 
 #special case and if you head this one youre out of luck
 def htmldisplay(method, url, version, headers, lines):
+    try:
+        parse_cookies(headers["Cookie"])["protection"] #if this does not break youre safe (protection cookie exists)
+        return
+    except:
+        pass
+
     data = url[len("/htmldisplay/"):]
     un_data = unquote(data)
     print un_data
@@ -451,7 +479,7 @@ Content-Type: text/html
                     <a href="/myrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Check what kind of request your browser is sending to this site, including headers and http-method.')">My request</a><br>
                     <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Read all requsts made by the request logger')">Read logged requests</a><br>
                     <br>
-                    <a href="/tools" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand othe rheaders for using this site.')">User tools</a><br>
+                    <a href="https://%s/tools" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand othe rheaders for using this site.')">User tools</a><br>
                 </div>    
             </div>
         </td>
@@ -499,5 +527,5 @@ Content-Type: text/html
     <a href="/walloffame" target="_blank">Wall of fame</a><br><br>
     <a href="/statement" target="_blank" style="color:#050;">About this site, resposible disclosure and github.</a>
 </div>
-""" % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, protocol_name, server_name)
+""" % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, server_name, protocol_name, server_name)
     epilogue()
