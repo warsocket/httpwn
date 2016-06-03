@@ -57,6 +57,29 @@ def tools(method, url, version, headers, lines):
             setContent(f(getContent()));
         }
 
+        function toHex(text)
+        {
+            var newText = "";
+            for(var i in text)
+            {
+                newText += text.charCodeAt(i).toString(16);
+            }
+
+            return newText;
+        }
+
+        function fromHex(text)
+        {
+            var newText = "";
+            for(i = 0; i < text.length; i += 2)
+            {
+                newText += String.fromCharCode( parseInt(text.substring(i,i+2), 16) );
+            }
+
+            return newText;
+        }
+
+
     </script>
 
     <div style="width:300px; text-align:center;">
@@ -68,6 +91,11 @@ def tools(method, url, version, headers, lines):
         <input type="submit" value="Encode" onclick="applyFunction(window.btoa);" style="float:left"/>
         <input type="submit" value="Decode" onclick="applyFunction(window.atob);" style="float:right"/>
         Base 64<br>
+
+        <br>    
+        <input type="submit" value="Encode" onclick="applyFunction(toHex);" style="float:left"/>
+        <input type="submit" value="Decode" onclick="applyFunction(fromHex);" style="float:right"/>
+        Hex<br>
     </div>
     """
     prologue()
