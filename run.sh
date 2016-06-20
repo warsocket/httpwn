@@ -21,11 +21,12 @@ cd $(dirname $0)
 
 if [ "$1" ==  "start" ]
 then
+    #IPv4+6
     if [ -f $httppid ]
     then
         echo http server already running
     else
-        $socatpath TCP-LISTEN:80,reuseaddr,fork,crnl EXEC:./main.py 2>> $httplog &
+        $socatpath TCP6-LISTEN:80,reuseaddr,ipv6only=0,fork,crnl EXEC:./main.py 2>> $httplog &
         echo -n $! > $httppid
     fi
 
@@ -33,12 +34,13 @@ then
     then
         echo https server already running
     else
-        $socatpath OPENSSL-LISTEN:443,reuseaddr,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2>> $httpslog &
+        $socatpath OPENSSL-LISTEN:443,reuseaddr,pf=ip6,ipv6only=0,fork,crnl,cert=$certfile,method=$sslmethod,verify=0,ciphers=$sslciphers EXEC:./main.py 2>> $httpslog &
         echo -n $! > $httpspid
     fi
 
 elif [ "$1" ==  "stop" ]
 then
+    #IPv4+6
     if [ -f $httppid ]
     then
         echo killing pid `cat $httppid`
@@ -55,6 +57,7 @@ then
     
 elif [ "$1" ==  "status" ]
 then
+    #IPv4+6
     if [ -f $httppid ]
     then
         echo http server running under pid: `cat $httppid`
