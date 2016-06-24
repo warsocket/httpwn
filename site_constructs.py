@@ -42,9 +42,20 @@ def is_secure():
 
 def proto_name():
     return ["http", "https"][is_secure()]
-    
+
 def get_ip():
-    return os.environ["SOCAT_PEERADDR"]
+
+    def ip_str(ip):
+        #assumes the trialing zeros of socat
+        try:
+            if ip[:30] == "[0000:0000:0000:0000:0000:ffff":
+                return ".".join( map(lambda x: str(int(x, 16)), [ip[31:33],ip[33:35],ip[36:38],ip[38:40]]) )
+            else:
+                return ip
+        except:
+            return ip
+
+    return ip_str(os.environ["SOCAT_PEERADDR"])
 
 def get_port():
     return os.environ["SOCAT_PEERPORT"]
