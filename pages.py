@@ -62,7 +62,9 @@ def tools(method, url, version, headers, lines):
             var newText = "";
             for(var i in text)
             {
-                newText += text.charCodeAt(i).toString(16);
+                var newCode = text.charCodeAt(i).toString(16);
+                if (newCode.length < 2) newCode = "0" + newCode;
+                newText += newCode;
             }
 
             return newText;
