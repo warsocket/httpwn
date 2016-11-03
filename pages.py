@@ -27,11 +27,45 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/logrequest(\\?.*)?$"), ALL, log_request))
     sites.append((GET, compile("^/htmldisplay/"), ALL, htmldisplay))
     sites.append((GET, compile("^/readrequest$"), ALL, requestlog))
+    sites.append((GET, compile("^/xss/[a-z]+\\.js$"), ALL, xss))
 
 import sys
 from site_constructs import *
 #from settings import settings
 
+
+def xss(method, url, version, headers, lines):
+    print "Connection: close"
+    print "Content-Type: application/javascript"
+    static_cache_headers()
+    if method == "HEAD": return
+    
+    name = url.split("/")[-1]
+    if name == "jar.js":
+        print """
+            alert(document.cookie);
+        """
+    elif name == "localstorage.js":
+        print """
+            string = ""
+
+            for(var i in localStorage)
+            {
+                string = string + i + " : \\'" + localStorage[i] + "\\'\\n"
+            }
+            alert(string);
+        """  
+    elif name == "sessionstorage.js":
+        print """
+            string = ""
+
+            for(var i in sessionStorage)
+            {
+                string = string + i + " : \\'" + sessionStorage[i] + "\\'\\n"
+            }
+            alert(string);
+        """  
+    
 
 def tools(method, url, version, headers, lines):
     html_headers()
@@ -550,8 +584,9 @@ Content-Type: text/html
                     <a href="/myrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Check what kind of request your browser is sending to this site, including headers and http-method.')">My request</a><br>
                     <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Read all requsts made by the request logger')">Read logged requests</a><br>
                     <br>
-                    <a href="https://%s/settings" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand othe rheaders for using this site.')">User settings</a><br>
+                    <a href="/xss/jar.js" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Cookies XSS POC: a JavaScript file to inlcude which displays all cookies<br>For use on environments with restricted XSS capabilities')">cookies</a> <a href="/xss/localstorage.js" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('localStorage XSS POC, a JavaScript file to inlcude which displays all localStorage variables<br>For use on environments with restricted XSS capabilities')">local</a> <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('sessionStorage XSS POC, a JavaScript file to inlcude which displays all sessionStorage variables<br>For use on environments with restricted XSS capabilities')">session</a><br>
                     <br>
+                    <a href="https://%s/settings" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand other headers for using this site.')">User settings</a><br>                   
                 </div>    
             </div>
         </td>
@@ -566,6 +601,7 @@ Content-Type: text/html
                     <br>
                     <a href="/logrequest?q=SESSIONID%%3Dsecret" onmouseout="clearDiv()" onmouseover="setTip('Nice logging facility that logs all requests being made')">Log requests</a><br>
                     <a href="/htmldisplay/Connection%%3A%%20close%%0AContent-Type%%3A%%20text%%2Fplain%%0A%%0Aplain%%20text%%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
+                    <br>
                     <br>
                     <br>
                 </div>
@@ -590,6 +626,7 @@ Content-Type: text/html
                     <a href="#" onclick="hideAll();setTip('');show('htmldisplaytool');">Generate Html display url<br>
                     <br>
                     <a href="tools" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Page to en/decode various stuff');">En/Decoder tool<br>
+                    <br>
                 </div>                
             </div>
         </td>
