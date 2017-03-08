@@ -20,7 +20,6 @@
 # TODO 
 # safe cookie parsing function 
 # Etag for revalidate_cache_headers (EG: sha256 as etag for the requests file) 
-# Dont attack me cookie (disables attacks from red menu for that user)
 # Protect agains ppl who jam server by connecting and not completing the http request (just accept x alive connecitons per ip, and maybe limit the request time to 1 sec)
 # Make sure server can start form all directories
 
@@ -30,6 +29,8 @@ import pwd
 import sqlite3
 import time
 import selector
+
+import websocket # this does not import on demand because of chroot jail
 from site_constructs import *
 #from settings import settings
 
@@ -99,9 +100,13 @@ if "Content-Length" in headers:
         lines.append(sys.stdin.read(int(headers["Content-Length"])))
     except:
         exit() # funny stuff makes your connection dead eg: value errors    
-    
-log_request(lines) #always log before giving an answer
 
+if "Sec-WebSocket-Key" in headers: # oh goody, a websocket
+	websocket.connection(method, url, version, headers)
+	exit() #Its a websockjet so we dotn do HTTP stuff
+
+
+log_request(lines) #always log before giving an answer
 
 #bumping to sepcified servername
 if settings["bumptoservername"] == "1":
