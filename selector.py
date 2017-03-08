@@ -28,7 +28,7 @@ def _delegate(method, url, version, headers, lines):
             exit(0)
 
     #if we get here no matches have been found
-    print "HTTP/1.1 400 Not Found"
+    print "HTTP/1.1 404 Not Found"
     print "Connection: close"
     print "Content-Type: text/html"
     print """
