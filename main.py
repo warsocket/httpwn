@@ -111,7 +111,7 @@ log_request(lines) #always log before giving an answer
 #bumping to sepcified servername
 if settings["bumptoservername"] == "1":
     if "Host" in headers:
-        if settings['servername'] != headers["Host"]:
+        if headers["Host"] not in [settings['servername'], settings['ipv4dnsrecord'], settings['ipv6dnsrecord']] :
             print "HTTP/1.1 302 FOUND"
             print "Location: %s://%s%s" % (proto_name(), settings["servername"], url)
             print ""

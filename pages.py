@@ -402,6 +402,19 @@ def mainsite(method, url, version, headers, lines):
 
     reverse_proto = ["https","http"][is_secure()]
     server_name = settings["servername"]
+
+    try:
+        ipv4_server_name = settings["ipv4dnsrecord"]
+    except:
+        ipv4_server_name = settings["servername"]
+    
+    try:
+        ipv6_server_name = settings["ipv6dnsrecord"]
+    except:
+        ipv6_server_name = settings["servername"]
+    
+
+
     protocol_name = proto_name()
 
     lock_img = ["""
@@ -580,7 +593,7 @@ Content-Type: text/html
                 </div>
                 <br>
                 <div class="noborder" style="text-align:right">
-                    <a href="/myip" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('You can use this link (in an automated way) to determine your WAN IP. all http methods are supported (GET/POST/etc).')">My IP</a><br>
+                    My <a href="/myip" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('You can use this link (in an automated way) to determine your WAN IP (you browser / software chooses between IPv4 and IPv6, if you are not on a IPv4/IPV6 forced domain). all HTTP methods are supported (GET/POST/etc).')">IP</a> <a href="%s://%s/myip" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('You can use this link (in an automated way) to determine your WAN IPv4. all HTTP methods are supported (GET/POST/etc).')">IPv4</a> <a href="%s://%s/myip" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('You can use this link (in an automated way) to determine your WAN IPv6. all HTTP methods are supported (GET/POST/etc).')">IPv6</a><br>
                     <a href="/myrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Check what kind of request your browser is sending to this site, including headers and http-method.')">My request</a><br>
                     <a href="/readrequest" target="_blank" onmouseout="clearDiv()" onmouseover="setTip('Read all requsts made by the request logger')">Read logged requests</a><br>
                     <br>
@@ -641,5 +654,5 @@ Content-Type: text/html
     <a href="/walloffame" target="_blank">Wall of fame</a><br><br>
     <a href="/statement" target="_blank" style="color:#050;">About this site, resposible disclosure and github.</a>
 </div>
-""" % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, server_name, protocol_name, server_name)
+""" % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, protocol_name, ipv4_server_name, protocol_name, ipv6_server_name, server_name, protocol_name, server_name)
     epilogue()

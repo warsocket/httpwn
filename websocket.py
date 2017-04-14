@@ -22,3 +22,12 @@ def connection(method, url, version, headers):
 	print ""
 	sys.stdout.flush()
 		
+	while True:
+		sys.stdout.write( "\x89\x00" )
+		sys.stdout.flush()
+		time.sleep(1)
+
+		sys.stdout.write( "\x81\x04PING" )
+		sys.stdout.flush()
+		time.sleep(1)
+		
