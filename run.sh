@@ -17,7 +17,7 @@
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 cd $(dirname $0)
 
-`./settings.py` # load settings
+$(./settings.py) # load settings
 
 if [ "$1" ==  "start" ]
 then
