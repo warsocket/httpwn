@@ -13,7 +13,6 @@
 #
 #You should have received a copy of the GNU Affero General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/$"), ALL, mainsite))
     sites.append((GET, compile("^/style.css$"), ALL, css))
@@ -30,23 +29,23 @@ def _sites(sites, ALL, GET, POST, compile):
     sites.append((GET, compile("^/xss/[a-z]+\\.js$"), ALL, xss))
 
 import sys
+from StringIO import StringIO
 from site_constructs import *
 #from settings import settings
 
-
-def xss(method, url, version, headers, lines):
-    print "Connection: close"
-    print "Content-Type: application/javascript"
-    static_cache_headers()
+def xss(fd, method, url, version, headers, lines):
+    print >>fd, "Connection: close"
+    print >>fd, "Content-Type: application/javascript"
+    static_cache_headers(fd)
     if method == "HEAD": return
     
     name = url.split("/")[-1]
     if name == "jar.js":
-        print """
+        print >>fd, """
             alert(document.cookie);
         """
     elif name == "localstorage.js":
-        print """
+        print >>fd, """
             string = ""
 
             for(var i in localStorage)
@@ -56,7 +55,7 @@ def xss(method, url, version, headers, lines):
             alert(string);
         """  
     elif name == "sessionstorage.js":
-        print """
+        print >>fd, """
             string = ""
 
             for(var i in sessionStorage)
@@ -65,13 +64,14 @@ def xss(method, url, version, headers, lines):
             }
             alert(string);
         """  
+    return fd.getvalue()
     
 
-def tools(method, url, version, headers, lines):
-    html_headers()
-    static_cache_headers()
-    print ""
-    print """
+def tools(fd, method, url, version, headers, lines):
+    html_headers(fd)
+    static_cache_headers(fd)
+    print >>fd, ""
+    print >>fd, """
     <textarea id="content" style="width:calc(100% - 350px);height:100%;float:right;"></textarea>
     <script>
         handle = document.getElementById("content");
@@ -134,14 +134,14 @@ def tools(method, url, version, headers, lines):
         Hex<br>
     </div>
     """
-    prologue()
-    epilogue()
+    prologue(fd, metadata["schema"])
+    epilogue(fd)
 
-def usersettings(method, url, version, headers, lines):
+def usersettings(fd, method, url, version, headers, lines):
     # if plain http we break earyl and redirect
 
     if method == "POST":
-        if not is_secure():
+        if not is_secure(metadata["socket"]):
             exit()
 
         try:
@@ -149,51 +149,51 @@ def usersettings(method, url, version, headers, lines):
         except:
             quit() #again if you try to break it, You dont get an answer        
 
-        plaintext_headers()
+        plaintext_headers(fd)
         
         whitelist = ["http://%s" % settings["servername"], "https://%s" % settings["servername"]]
 
         if "Origin" in headers:
             if headers['Origin'] in whitelist:
-                print "Access-Control-Allow-Origin: %s" % headers['Origin']
+                print >>fd, "Access-Control-Allow-Origin: %s" % headers['Origin']
             else:
                 exit() #And here we are sure someone is being naughty
 
         if (code == 0):
-            print "Strict-Transport-Security: max-age=0"
+            print >>fd, "Strict-Transport-Security: max-age=0"
         elif (code == 1):
-            print "Strict-Transport-Security: max-age=%s" % settings["httpsecuritytimeout"]
+            print >>fd, "Strict-Transport-Security: max-age=%s" % settings["httpsecuritytimeout"]
         elif (code == 2):
-            print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=0; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"])
+            print >>fd, "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=0; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"])
         elif (code == 3):
-            print "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=%s; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"], settings["httpsecuritytimeout"])
+            print >>fd, "Public-Key-Pins: pin-sha256=\"%s\"; pin-sha256=\"%s\"; max-age=%s; includeSubDomains" % (settings["HPKPkey1"], settings["HPKPkey2"], settings["httpsecuritytimeout"])
         elif (code == 4):
-            print "Set-Cookie: protection=0; Max-Age=0"
+            print >>fd, "Set-Cookie: protection=0; Max-Age=0"
         elif (code == 5):
-            print "Set-Cookie: protection=1; Max-Age=%s" % settings["httpsecuritytimeout"]
+            print >>fd, "Set-Cookie: protection=1; Max-Age=%s" % settings["httpsecuritytimeout"]
             
 
-        print ""
-        print "1"
+        print >>fd, ""
+        print >>fd, "1"
         return
 
 
-    if is_secure():
-        html_headers()
+    if is_secure(metadata["socket"]):
+        html_headers(fd)
     else:
-        plaintext_headers() #if not secure
+        plaintext_headers(fd) #if not secure
 
-    static_cache_headers()
-    print ""
+    static_cache_headers(fd)
+    print >>fd, ""
 
     if method == "HEAD": return
 
-    if not is_secure():
-        print "This page is only available in https" #if not secure
+    if not is_secure(metadata["socket"]):
+        print >>fd, "This page is only available in https" #if not secure
         return #if not secure
 
-    prologue()
-    print """
+    prologue(fd, metadata["schema"])
+    print >>fd, """
         <script>
             function postRequest(code)
             {
@@ -224,57 +224,57 @@ def usersettings(method, url, version, headers, lines):
         </div>
 
     """
-    epilogue()
+    epilogue(fd)
 
 
-def my_ip(method, url, version, headers, lines):
-    plaintext_headers()
-    no_cache_headers()
-    print ""
+def my_ip(fd, method, url, version, headers, lines):
+    plaintext_headers(fd)
+    no_cache_headers(fd)
+    print >>fd, ""
     if method == "HEAD": return
-    print get_ip() 
+    print >>fd, get_ip(metadata["socket"]) 
 
 
-def feedback_url(method, url, version, headers, lines):
-    plaintext_headers()
-    no_cache_headers()
-    print ""
+def feedback_url(fd, method, url, version, headers, lines):
+    plaintext_headers(fd)
+    no_cache_headers(fd)
+    print >>fd, ""
     if method == "HEAD": return
-    print "%s:%s\n" %(get_ip(),get_port())
-    print "\n".join(lines)
+    print >>fd, "%s:%s\n" %(get_ip(metadata["socket"]),get_port(metadata["socket"]))
+    print >>fd, "\n".join(lines)
 
 
-def log_request(method, url, version, headers, lines):
+def log_request(fd, method, url, version, headers, lines):
     try:
         parse_cookies(headers["Cookie"])["protection"] #if this does not break youre safe (protection cookie exists)
         return
     except:
         pass
 
-    lines = ["---------- %s:%s @ %f ----------" % (get_ip(), get_port(), time())] + lines + ["-----------------------------------------------------"]
-    no_cache_headers()    
+    lines = ["---------- %s:%s @ %f ----------" % (get_ip(metadata["socket"]), get_port(metadata["socket"]), time())] + lines + ["-----------------------------------------------------"]
+    no_cache_headers(fd)    
     raw_text = "\n".join(lines).strip()
     with open(settings["requestlogpath"], "a") as f:
         f.write("%s\n" % raw_text)
-    print "HTTP/1.1 200 OK"
-    print "Connection: close"
-    print ""
+    print >>fd, "HTTP/1.1 200 OK"
+    print >>fd, "Connection: close"
+    print >>fd, ""
 
 
-def requestlog(method, url, version, headers, lines):
+def requestlog(fd, method, url, version, headers, lines):
     with open(settings["requestlogpath"], "r+") as f:
         data = f.read()
     
-    plaintext_headers()
-    revalidate_cache_headers()
+    plaintext_headers(fd)
+    revalidate_cache_headers(fd)
     
-    print ""
+    print >>fd, ""
     if method == "HEAD": return
-    print data
+    print >>fd, data
 
 
 #special case and if you head this one youre out of luck
-def htmldisplay(method, url, version, headers, lines):
+def htmldisplay(fd, method, url, version, headers, lines):
     try:
         parse_cookies(headers["Cookie"])["protection"] #if this does not break youre safe (protection cookie exists)
         return
@@ -283,28 +283,28 @@ def htmldisplay(method, url, version, headers, lines):
 
     data = url[len("/htmldisplay/"):]
     un_data = unquote(data)
-    print un_data
+    print >>fd, un_data
 
 
-def robots(method, url, version, headers, lines):
-    plaintext_headers()
-    static_cache_headers()
-    print ""
+def robots(fd, method, url, version, headers, lines):
+    plaintext_headers(fd)
+    static_cache_headers(fd)
+    print >>fd, ""
     if method == "HEAD": return
-    print "User-agent: *"
-    print "Disallow: /logrequest"
-    print "Disallow: /htmldisplay/"
-    print ""
+    print >>fd, "User-agent: *"
+    print >>fd, "Disallow: /logrequest"
+    print >>fd, "Disallow: /htmldisplay/"
+    print >>fd, ""
 
 
 #style sheet
-def css(method, url, version, headers, lines):
-    print "Connection: close"
-    print "Content-Type: text/css"
-    static_cache_headers()
-    print ""
+def css(fd, method, url, version, headers, lines):
+    print >>fd, "Connection: close"
+    print >>fd, "Content-Type: text/css"
+    static_cache_headers(fd)
+    print >>fd, ""
     if method == "HEAD": return
-    print """
+    print >>fd, """
 /* I have no style */
 *
 {
@@ -371,12 +371,12 @@ a
 """
 
 
-def walloffame(method, url, version, headers, lines):
-    html_headers()
-    static_cache_headers()
-    print ""
-    prologue()
-    print """
+def walloffame(fd, method, url, version, headers, lines):
+    html_headers(fd)
+    static_cache_headers(fd)
+    print >>fd, ""
+    prologue(fd, metadata["schema"])
+    print >>fd, """
         <div>
             <ul>
                 <li>
@@ -390,16 +390,16 @@ def walloffame(method, url, version, headers, lines):
             </ul>
         </div>
     """
-    epilogue()
+    epilogue(fd)
 
 
-def statement(method, url, version, headers, lines):
-    html_headers()
-    static_cache_headers()
-    print ""
+def statement(fd, method, url, version, headers, lines):
+    html_headers(fd)
+    static_cache_headers(fd)
+    print >>fd, ""
     if method == "HEAD": return
-    prologue()
-    print """
+    prologue(fd, metadata["schema"])
+    print >>fd, """
     <div>
         <p>This website is meant as a fun exercise and toolbox for white-hat hackers to solve challenges on other sites or maybe even find a hole in this one.</p>
         <p>As long as you restrict yourself ONLY to the webserver (software running on port 80 &amp 443) and website logic you have my permission to try to find holes in the security IF you responsibly disclose them to me.
@@ -407,12 +407,12 @@ def statement(method, url, version, headers, lines):
         <p>Finally, the software runnig this website is on github: <a href="https://github.com/warsocket/httpwn">https://github.com/warsocket/httpwn</a> So feel free to review the code and / or collaborate.</p>
     </div>
     """
-    epilogue()
+    epilogue(fd)
 
 
-def mainsite(method, url, version, headers, lines):
+def mainsite(fd, method, url, version, headers, lines):
 
-    reverse_proto = ["https","http"][is_secure()]
+    reverse_proto = ["https","http"][is_secure(metadata["socket"])]
     server_name = settings["servername"]
 
     try:
@@ -427,7 +427,7 @@ def mainsite(method, url, version, headers, lines):
     
 
 
-    protocol_name = proto_name()
+    protocol_name = proto_name(metadata["socket"])
 
     lock_img = ["""
     <svg width="39" height="63">
@@ -474,12 +474,12 @@ def mainsite(method, url, version, headers, lines):
         </g>
     </svg>"""]
 
-    html_headers()
-    static_cache_headers()
-    print ""
+    html_headers(fd)
+    static_cache_headers(fd)
+    print >>fd, ""
     if method == "HEAD": return
     #CUstom header
-    print """
+    print >>fd, """
 <html>
 <head>
 <title>Htt(p)wnage tool</title>
@@ -666,5 +666,5 @@ Content-Type: text/html
     <a href="/walloffame" target="_blank">Wall of fame</a><br><br>
     <a href="/statement" target="_blank" style="color:#050;">About this site, resposible disclosure and github.</a>
 </div>
-""" % (reverse_proto, lock_img[is_secure()], server_name, server_name, protocol_name, server_name, ipv4_server_name, ipv6_server_name, server_name, protocol_name, server_name)
-    epilogue()
+""" % (reverse_proto, lock_img[is_secure(metadata["socket"])], server_name, server_name, protocol_name, server_name, ipv4_server_name, ipv6_server_name, server_name, protocol_name, server_name)
+    epilogue(fd)

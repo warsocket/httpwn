@@ -15,23 +15,26 @@
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from site_constructs import proto_name
+from StringIO import StringIO
 l_and = lambda x,y : x and y
 
 #Method, URL, HttpVersion, -> function
 sites=[]
 
-def _delegate(method, url, version, headers, lines):
+def _delegate(outfeed, method, url, version, headers, lines):
     for re_method, re_url, re_version, func in sites:
         if reduce(l_and, map(bool, [re_method.match(method), re_url.match(url), re_version.match(version)])):
-            print "HTTP/1.1 200 OK"
-            func(method, url, version, headers, lines)
-            exit(0)
+            print >>outfeed, "HTTP/1.1 200 OK"
+            func(outfeed, method, url, version, headers, lines)
+            return
+            #exit(0)
 
     #if we get here no matches have been found
-    print "HTTP/1.1 404 Not Found"
-    print "Connection: close"
-    print "Content-Type: text/html"
-    print """
+    print >>outfeed, "HTTP/1.1 404 Not Found"
+    print >>outfeed, "Connection: close"
+    print >>outfeed, "Content-Type: text/html"
+    print >>outfeed, """
     <html>
     <head />
     <body style="background-color:black">
@@ -41,12 +44,19 @@ def _delegate(method, url, version, headers, lines):
     </body>
     </html>
     """
-    exit(0)
 
-#now the apges may be loaded
-ALL = re.compile("")
-GET = re.compile("(^(GET)|(HEAD)$)")
-POST = re.compile("^POST$")
+    return 
+    # exit(0)
 
-import pages
-pages._sites(sites,ALL,GET,POST,re.compile)
+
+def loadpages():
+    #now the apges may be loaded
+    ALL = re.compile("")
+    GET = re.compile("(^(GET)|(HEAD)$)")
+    POST = re.compile("^POST$")
+
+    import pages
+    metadata["schema"] = proto_name(metadata["socket"])
+    pages.metadata = metadata
+    pages._sites(sites,ALL,GET,POST,re.compile)
+

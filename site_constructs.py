@@ -18,7 +18,7 @@ from urllib import quote, unquote
 from time import time
 import os
 from settings import settings
-
+import ssl
 
 def parse_cookies(cookie_string):
     c = {}
@@ -37,57 +37,63 @@ def parse_cookies(cookie_string):
     return c    
 
 
-def is_secure():
-   return int(os.environ["SOCAT_SOCKPORT"]) == 443
+def is_secure(sock):
+    return type(sock) is ssl.SSLSocket
 
-def proto_name():
-    return ["http", "https"][is_secure()]
+def proto_name(sock):
+    return ["http", "https"][is_secure(sock)]
 
-def get_ip():
+def get_ip(sock):
 
     def ip_str(ip):
         #assumes the trialing zeros of socat
         try:
-            if ip[:30] == "[0000:0000:0000:0000:0000:ffff":
-                return ".".join( map(lambda x: str(int(x, 16)), [ip[31:33],ip[33:35],ip[36:38],ip[38:40]]) )
-            else:
+            # if ip[:30] == "[0000:0000:0000:0000:0000:ffff":
+            try:
+                _, ipv4 = ip.split("::ffff:")
+                return ipv4
+            except:
                 return ip
+                                
         except:
             return ip
 
-    return ip_str(os.environ["SOCAT_PEERADDR"])
+    return ip_str( sock.getpeername()[0] )
 
-def get_port():
-    return os.environ["SOCAT_PEERPORT"]
+def get_port(sock):
+    return sock.getpeername()[1]
 
-def html_headers():
-    print "Connection: close"
-    print "Content-Type: text/html"
 
-def plaintext_headers():
-    print "Connection: close"
-    print "Content-Type: text/plain"
 
-def static_cache_headers():
-    print "cache-control: max-age=86400"
 
-def revalidate_cache_headers():
-    print "cache-control: max-age=0,must-revalidate"
+def html_headers(fd):
+    print >>fd, "Connection: close"
+    print >>fd, "Content-Type: text/html"
 
-def no_cache_headers():
-    print "cache-control: no-store"
+def plaintext_headers(fd):
+    print  >>fd, "Connection: close"
+    print  >>fd, "Content-Type: text/plain"
 
-def prologue():
-    print """
+def static_cache_headers(fd):
+    print  >>fd, "cache-control: max-age=86400"
+
+def revalidate_cache_headers(fd):
+    print  >>fd, "cache-control: max-age=0,must-revalidate"
+
+def no_cache_headers(fd):
+    print  >>fd, "cache-control: no-store"
+
+def prologue(fd, schema):
+    print  >>fd, """
 <html>
 <head>
 <link href="%s://%s/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-""" % (proto_name(), settings['servername'])
+""" % (schema, settings['servername'])
 
-def epilogue():
-    print """
+def epilogue(fd):
+    print  >>fd, """
 </body>
 </html>
 """

@@ -29,6 +29,7 @@ import pwd
 import sqlite3
 import time
 import selector
+from StringIO import StringIO
 
 import websocket # this does not import on demand because of chroot jail
 from site_constructs import *
@@ -49,73 +50,83 @@ def log_request(lines):
             request text    
         );
         """)
-        c.execute( "insert into visitors values(?,?,?,?,?)", ( time(), get_ip(), int(get_port()), int(is_secure()), "\n".join(lines) ) )
+        c.execute( "insert into visitors values(?,?,?,?,?)", ( time(), get_ip(), int(get_port()), int(is_secure(sock)), "\n".join(lines) ) )
         conn.commit()
         conn.close()
     except: #if we cannot log we quit
         sys.stderr.write("%s\n" % "Failed to log visit, ABORTING...") 
-        exit()    
+        return
 
 
-#jail me
-ids = pwd.getpwnam(settings["unpriviligeduser"]) #need this before chroot
-os.chroot(settings["jaildir"])
-os.chdir("/")
+# #jail me
+# ids = pwd.getpwnam(settings["unpriviligeduser"]) #need this before chroot
+# os.chroot(settings["jaildir"])
+# os.chdir("/")
 
-#drop privileges
-try:
-    os.setgid(ids.pw_gid)
-    os.setuid(ids.pw_uid)
-except:
-    sys.stderr.write("%s\n" % "Failed to drop priviliges, ABORTING...") 
-    exit() #no lesser priviliges no page
+# #drop privileges
+# try:
+#     os.setgid(ids.pw_gid)
+#     os.setuid(ids.pw_uid)
+# except:
+#     sys.stderr.write("%s\n" % "Failed to drop priviliges, ABORTING...") 
+#     exit() #no lesser priviliges no page
 
 #touch files
-with open(settings["requestlogpath"], "a") as f:
-    pass
+# with open(settings["requestlogpath"], "a") as f:
+#     pass
 
-#http parsing
-line = sys.stdin.readline().strip() #get request
-try:
-    method, url, version = line.split(" ")
-except ValueError: #No HTTP no DEAL
-    exit()
+def main(sock):
+    #http parsing
+    infeed = StringIO(sock.recv(0xFFFF))
 
-
-#Url handling
-lines = [line]
-headers = {}
-while line:
+    line = infeed.readline().strip() #get request
     try:
-        header, content = line.split(":",1)
-        headers[header] = content.strip()
-    except ValueError: #discard ValueErrors of mal formatted headers
-        pass
-    
-    line = sys.stdin.readline().strip() #get request
-    lines.append(line)
-
-if "Content-Length" in headers:
-    try:
-        lines.append(sys.stdin.read(int(headers["Content-Length"])))
-    except:
-        exit() # funny stuff makes your connection dead eg: value errors    
-
-if "Sec-WebSocket-Key" in headers: # oh goody, a websocket
-	websocket.connection(method, url, version, headers)
-	exit() #Its a websockjet so we dotn do HTTP stuff
+        method, url, version = line.split(" ")
+    except ValueError: #No HTTP no DEAL
+        return
 
 
-log_request(lines) #always log before giving an answer
+    #Url handling
+    lines = [line]
+    headers = {}
+    while line:
+        try:
+            header, content = line.split(":",1)
+            headers[header] = content.strip()
+        except ValueError: #discard ValueErrors of mal formatted headers
+            pass
+        
+        line = infeed.readline().strip() #get request
+        lines.append(line)
 
-#bumping to sepcified servername
-if settings["bumptoservername"] == "1":
-    if "Host" in headers:
-        if headers["Host"] not in [settings['servername'], settings['ipv4dnsrecord'], settings['ipv6dnsrecord']] :
-            print "HTTP/1.1 302 FOUND"
-            print "Location: %s://%s%s" % (proto_name(), settings["servername"], url)
-            print ""
-            exit()
+    if "Content-Length" in headers:
+        try:
+            lines.append(infeed.read(int(headers["Content-Length"])))
+        except:
+            return # funny stuff makes your connection dead eg: value errors    
 
-#now delegate
-selector._delegate(method, url, version, headers, lines)
+    if "Sec-WebSocket-Key" in headers: # oh goody, a websocket
+    	websocket.connection(method, url, version, headers)
+    	return #Its a websockjet so we dotn do HTTP stuff
+
+
+    # log_request(lines) #always log before giving an answer
+
+    #bumping to sepcified servername
+    if settings["bumptoservername"] == "1":
+        if "Host" in headers:
+            if headers["Host"] not in [settings['servername'], settings['ipv4dnsrecord'], settings['ipv6dnsrecord']] :
+                outfeed = StringIO()
+                print >>outfeed, "HTTP/1.1 302 FOUND"
+                print >>outfeed, "Location: %s://%s%s" % (proto_name(sock), settings["servername"], url)
+                print >>outfeed, ""
+
+                sock.sendall(outfeed.getvalue())
+                return
+
+    #now delegate
+    outfeed = StringIO()
+    selector.metadata = {"socket": sock}
+    selector.loadpages()
+    selector._delegate(outfeed, method, url, version, headers, lines)
+    sock.sendall(outfeed.getvalue())
