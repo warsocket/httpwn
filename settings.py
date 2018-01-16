@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pypy
 
 #httpwn.org
 #Copyright (C) 2016  Bram Staps
