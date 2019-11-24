@@ -1,0 +1,97 @@
+
+/* I have no style */
+*
+{
+    font-family: monospace;
+    font-size: 12pt;
+    color: #0F0;
+    background-color:black;
+}
+body
+{
+    min-width: 320px;
+    /*min-height: 100%;*/
+}
+div
+{
+    border: 1px solid #0F0;
+    padding: 10px;
+}
+
+input
+{
+    border: 1px solid #0F0;
+}
+
+.menu,.submenu{
+    margin:5px;
+}
+
+
+.menu:hover,.submenu:hover{
+    border-color: #FF0;
+    color: #FF0;
+}
+
+textarea
+{
+    border: 1px solid #0F0;
+}
+
+textarea:hover
+{
+    border-color: #FF0;
+}
+
+.console
+{
+    scroll-behavior: never;
+    margin: 0px;
+    width: 100%;
+    /*height: calc(100vh - 220px);*/
+    height:100%;
+    box-sizing: border-box;
+    resize: none;
+}
+
+
+
+a:hover
+{
+    text-decoration: underline;
+}
+
+a
+{
+    text-decoration: none;
+}
+.noborder
+{
+    border: none; 
+    padding: 0px;
+}
+.red
+{
+    border-color: #F00;
+    font-color: #F00;
+    color: #F00;
+}
+.red a
+{
+    border-color: #F00;
+    font-color: #F00;
+    color: #F00;
+}
+.yellow
+{
+    border-color: #FF0;
+    font-color: #FF0;
+    color: #FF0;
+}
+.yellow a
+{
+    border-color: #FF0;
+    font-color: #FF0;
+    color: #FF0;
+}
+
