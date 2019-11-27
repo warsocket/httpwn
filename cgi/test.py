@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-print("Response: 200")
-print("Content-Type: text/html")
+import sys
+print("status: 200 OK")
+print("Content-Type: text/plain")
 print("")
-print("oi")
+print("-"*40)
+x = sys.stdin.read()
+print(len(x))
+print("-"*40)

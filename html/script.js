@@ -68,6 +68,8 @@ document.getElementById("bd").addEventListener("click", () => mapContent(window.
 document.getElementById("he").addEventListener("click", () => mapContent(toHex));
 document.getElementById("hd").addEventListener("click", () => mapContent(fromHex));
 
-document.getElementById("myip").addEventListener("click", () => writeapi('/api/myip'));
-document.getElementById("myipv4").addEventListener("click", () => writeapi(window.location.protocol + '//ipv4.httpwn.org/api/myip'));
-document.getElementById("myipv6").addEventListener("click", () => writeapi(window.location.protocol + '//ipv6.httpwn.org/api/myip'));
+document.getElementById("myrequest").addEventListener("click", () => writeapi('/myrequest'));
+
+document.getElementById("myip").addEventListener("click", () => writeapi('/myip'));
+document.getElementById("myipv4").addEventListener("click", () => writeapi(window.location.protocol + '//ipv4.httpwn.org/myip'));
+document.getElementById("myipv6").addEventListener("click", () => writeapi(window.location.protocol + '//ipv6.httpwn.org/myip'));
