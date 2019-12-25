@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=www-data
-WorkingDirectory=/var/www/cgi/
-ExecStart=/var/www/cgi/myrequest.py
+WorkingDirectory=/var/www/server/
+ExecStart=/var/www/server/myrequest.py
 Restart=always
 
 [Install]

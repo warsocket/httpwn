@@ -2,7 +2,7 @@
 import os
 import sys
 
-print("Response: 200")
+print("Status: 200")
 print("Content-Type: text/plain")
 print("")
 sys.stdout.close()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-print("status: 200 OK")
+print("Status: 200")
 print("Content-Type: text/plain")
 print("")
 print("-"*40)
