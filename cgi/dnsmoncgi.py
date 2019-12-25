@@ -33,6 +33,8 @@ p = path.join(*l)
 print("Status: 200")
 print("Content-Type: text/plain")
 print("")
-for file in listdir(p):
+files = sorted(listdir(p))
+files.reverse()
+for file in files:
 	with open(path.join(p, file), "r") as f: print(f.read())
 
