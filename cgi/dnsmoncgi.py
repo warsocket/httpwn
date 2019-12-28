@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import settings
 import re
-from os import listdir
+import os
 from os import path
 from os import environ
+
 
 dns_trailer = ".".join([settings.dnsbase, settings.domain])
 
@@ -26,15 +27,22 @@ if not re.match("^([a-zA-Z0-9][a-zA-Z0-9\\-]*)(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]*)*$"
 
 tr = dns_trailer.split(".")
 tr.reverse()
-l = [settings.dnsmon] + tr + [dnskey]
+dnskeyrev = list(map(lambda x: x.lower(), dnskey.split("."))) # We will match for lowercase, as saved by dnsmon
+dnskeyrev.reverse()
+l = [settings.dnsmon] + tr + dnskeyrev
 p = path.join(*l)
 
 
 print("Status: 200")
 print("Content-Type: text/plain")
 print("")
-files = sorted(listdir(p))
+
+files = []
+for step in os.walk(p):
+	prefix,_,filelist = step
+	files += map(lambda x: path.join(prefix, x), filelist)
+
+files.sort(key=lambda x: x.rsplit("/", 1)[-1])
 files.reverse()
 for file in files:
 	with open(path.join(p, file), "r") as f: print(f.read())
-

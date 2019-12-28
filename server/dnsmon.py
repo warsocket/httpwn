@@ -168,6 +168,7 @@ def handle(data, address):
 		parts.reverse()
 		partsum = []
 		for part in parts:
+			part = part.lower() #We log case insensitive, but since dns names are semantically case insessitive we lower here.
 			partsum.append(part)
 			p = os.path.join(path,*tuple(partsum))
 			try:
