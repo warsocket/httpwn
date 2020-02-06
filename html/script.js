@@ -60,7 +60,26 @@ async function writeapi(url){
     c.value = await r.text();
 };
 
+function copy(){
+    var c = getConsole()
+    c.select();
+    document.execCommand("copy");
+    var t = c.value;
+    c.value = "";
+    c.value = t ;
+
+}
+
+function paste(){
+    var c = getConsole()
+    c.select();
+    document.execCommand("paste");
+}
+
 //now we map eevent listeners
+document.getElementById("copy").addEventListener("click", () => copy());
+document.getElementById("clear").addEventListener("click", () => getConsole().value = "");
+
 document.getElementById("ue").addEventListener("click", () => mapContent(encodeURIComponent));
 document.getElementById("ud").addEventListener("click", () => mapContent(decodeURIComponent));
 document.getElementById("be").addEventListener("click", () => mapContent(window.btoa));
@@ -69,7 +88,9 @@ document.getElementById("he").addEventListener("click", () => mapContent(toHex))
 document.getElementById("hd").addEventListener("click", () => mapContent(fromHex));
 
 document.getElementById("myrequest").addEventListener("click", () => writeapi('/myrequest'));
-
 document.getElementById("myip").addEventListener("click", () => writeapi('/myip'));
 document.getElementById("myipv4").addEventListener("click", () => writeapi(window.location.protocol + '//ipv4.httpwn.org/myip'));
 document.getElementById("myipv6").addEventListener("click", () => writeapi(window.location.protocol + '//ipv6.httpwn.org/myip'));
+
+document.getElementById("dnsget").addEventListener("click", () => writeapi(window.location.protocol + '/dns?dns=' + document.getElementById("dnsname").value ));
+
