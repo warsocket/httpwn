@@ -189,6 +189,10 @@ if len(sys.argv) == 2:
 	except: 
 		pass
 
+if path:
+    os.chroot(path)
+    path = "/"
+
 sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
 sock.bind(("::", 53))
 

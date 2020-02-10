@@ -8,11 +8,12 @@ import os
 import time
 import shutil
 
+os.chroot(sys.argv[1])
 now = time.time()
-for file in os.walk(sys.argv[1]):
+for file in os.walk("/"):
     rootname, _, filenames = file
     for filename in map(lambda x: os.path.join(rootname, x), filenames):
-        # print(filename)
+        #print(filename)
         if filename == sys.argv[1]: continue #we dont prune the directory only its content
         if (now - os.path.getmtime(filename)) > int(sys.argv[2]): 
             try:
