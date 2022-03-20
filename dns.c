@@ -17,7 +17,7 @@ regex_t REDIRRGX;
 regex_t REGEX;
 
 const char const alphabet[] = "abcdefghijklmnopqrstuvwxyz0123456789";
-char rsi[17] = {0};
+char rsi[17] = {'\0'};
 // char hostname[256] = {0};
 
 const char* const rs(){
@@ -55,7 +55,7 @@ bool string_in_array(const char string[], const char array[10][50]){
 }
 
 
-int main(int argc, char* argv[]){
+void main(){
 	//main stuff
 
 	//get hostname and its leftmost part (candidate uuid)

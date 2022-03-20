@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(char* argc){
+void main(){
 	
 	if (getenv("HTTPS")){
 		printf("Access-Control-Allow-Origin: https://httpwn.org\r\n");

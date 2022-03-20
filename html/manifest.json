@@ -1,0 +1,23 @@
+{
+	"name": "Httpwn info app",
+	"short_name": "HttpwnInfo",
+	"start_url": ".",
+	"display": "standalone",
+	"background_color": "#fff",
+	"description": "An app for easy htpwn.org info access.",
+	"icons": [
+		{
+			"src": "icon-1024.png",
+			"sizes": "1024x1024",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	],
+	"theme_color": "green"
+}
