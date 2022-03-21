@@ -2,12 +2,17 @@
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js')
 
 //PWA install prompt
-let deferredPrompt
-
 window.addEventListener('beforeinstallprompt', (e) => {
-    deferredPrompt = e
 
-    // alert("can install")
+	e.preventDefault()
+	deferredPrompt = e
+
+	install.classList.remove("hidden")
+	install.addEventListener('click', () => {
+		install.disabled = true
+		e.prompt()
+	})
+    
 });
 
 

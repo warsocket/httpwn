@@ -5,7 +5,8 @@ var cachelist = [
 	'./index.js',
 	'./manifest.json',
 	'./icon-1024.png',
-	'./icon-192.png'
+	'./icon-192.png',
+	'./Shape-Cube-512.png'
 ]
 
 

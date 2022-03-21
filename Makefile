@@ -2,7 +2,7 @@ all: ./cgi/ip ./cgi/cipher ./cgi/dns
 clean: clean-ip clean-cipher clean-dns
 scp: all scp-all
 install: scp apply
-scp-html: ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/icon-1024.png ./html/icon-192.png ./html/sw.js
+scp-html: ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/icon-1024.png ./html/icon-192.png ./html/Shape-Cube-512.png ./html/sw.js
 scp-cgi: scp-ip scp-cipher scp-dns
 scp-powerdns:
 scp-apache:
@@ -46,7 +46,7 @@ scp-dns:
 	scp ./cgi/dns httpwn.org:/var/www/cgi/
 
 scp-html:
-	scp ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/sw.js ./html/icon-1024.png ./html/icon-192.png httpwn.org:/var/www/html/
+	scp ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/sw.js ./html/icon-1024.png ./html/icon-192.png ./html/Shape-Cube-512.png httpwn.org:/var/www/html/
 
 scp-apache:
 	scp ./site.conf httpwn.org:/etc/apache2/
