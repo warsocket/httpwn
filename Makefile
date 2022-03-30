@@ -14,36 +14,33 @@ apply: apply-powerdns apply-apache
 
 ./cgi/ip:
 	gcc ip.c -Ofast -o ./cgi/ip
-	cp ip.py ./cgi/
 
 clean-ip:
 	rm ./cgi/ip
-	rm ./cgi/ip.py
 
 scp-ip:
-	scp ./cgi/ip httpwn.org:/var/www/cgi/
+	scp ./cgi/ip ./ip.py httpwn.org:/var/www/cgi/
+	scp ./ip.wsgi httpwn.org:/var/www/wsgi/
 
 ./cgi/cipher:
 	gcc cipher.c -Ofast -o ./cgi/cipher
-	cp cipher.py ./cgi/
 
 clean-cipher:
 	rm ./cgi/cipher
-	rm ./cgi/cipher.py
 
 scp-cipher:
-	scp ./cgi/cipher httpwn.org:/var/www/cgi/
+	scp ./cgi/cipher ./cipher.py  httpwn.org:/var/www/cgi/
+	scp ./cipher.wsgi httpwn.org:/var/www/wsgi/
 
 ./cgi/dns:
 	gcc uuid4.c dns.c -Ofast -o ./cgi/dns
-	cp dns.py ./cgi/
 
 clean-dns:
 	rm ./cgi/dns
-	rm ./cgi/dns.py
 
 scp-dns:
-	scp ./cgi/dns httpwn.org:/var/www/cgi/
+	scp ./cgi/dns ./dns.py httpwn.org:/var/www/cgi/
+	#scp ./dns.wsgi httpwn.org:/var/www/wsgi/
 
 scp-html:
 	scp ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/sw.js ./html/icon-1024.png ./html/icon-192.png ./html/Shape-Cube-512.png httpwn.org:/var/www/html/
