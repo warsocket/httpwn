@@ -3,7 +3,7 @@ clean: clean-ip clean-cipher clean-dns
 scp: all scp-all
 install: scp apply
 scp-html: ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/icon-1024.png ./html/icon-192.png ./html/Shape-Cube-512.png ./html/sw.js
-scp-cgi: scp-ip scp-cipher scp-dns
+scp-cgi: scp-ip scp-cipher scp-dns scp-useragent
 scp-powerdns:
 scp-apache:
 scp-all: scp-html scp-cgi scp-powerdns scp-apache
@@ -40,7 +40,10 @@ clean-dns:
 
 scp-dns:
 	scp ./cgi/dns ./dns.py httpwn.org:/var/www/cgi/
-	#scp ./dns.wsgi httpwn.org:/var/www/wsgi/
+	scp ./dns.wsgi httpwn.org:/var/www/wsgi/
+
+scp-useragent:
+	scp ./useragent.wsgi httpwn.org:/var/www/wsgi/
 
 scp-html:
 	scp ./html/index.html ./html/index.js ./html/index.css ./html/manifest.json ./html/sw.js ./html/icon-1024.png ./html/icon-192.png ./html/Shape-Cube-512.png httpwn.org:/var/www/html/
